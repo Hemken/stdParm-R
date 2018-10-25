@@ -1,3 +1,4 @@
+source("stdParm functions.r")
 library(MASS)
 
 nobs <- 100
