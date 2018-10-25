@@ -25,10 +25,12 @@ for (i in 1:nmeans){
   x <- x.means[i]
   names(x) <- varnames[i]
   C <- kron(mean.to.matrix(x), C)
-  inmodel <- colnames(C) %in% b.terms
-  print(inmodel)
-  print(colnames(C)[!inmodel])
-  C <- C[, inmodel]
+#  inmodel <- colnames(C) %in% b.terms
+  print(colnames(C))
+  print(vars.in.terms(colnames(C)))
+  print(vars.in.terms(b.terms))
+  print("")
+#  C <- C[, inmodel]
 }
 C
 

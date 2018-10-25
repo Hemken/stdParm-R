@@ -18,21 +18,5 @@ b <- coef(lm(y~ x1*x2 + x3, df))
 b.terms <- names(b)
 b
 
-splitterms <- strsplit(b.terms, ":")
-vars <- unique(unlist(splitterms))
-
-term.vars <- matrix(FALSE, ncol=length(vars), nrow=length(b.terms))
-rownames(term.vars) <- b.terms
-colnames(term.vars) <- vars
-
-for (i in 1:length(splitterms)) {
-  for (j in 1:length(splitterms[[i]])) {
-    for (k in 1:length(vars)) {
-      if (splitterms[[i]][j] == vars[k]){
-        term.vars[i,k] <- TRUE
-      }
-    }
-  }
-}
-term.vars
+vars.in.terms(b.terms)
 
