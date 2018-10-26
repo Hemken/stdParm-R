@@ -19,16 +19,39 @@ b
 
 nmeans <- length(x.means)
 varnames <- names(x.means)
+
 S <- C <- matrix(1, ncol=1)
 colnames(S) <-rownames(S) <- colnames(C) <-rownames(C) <- "(Intercept)"
+
 for (i in 1:nmeans){
   x <- x.means[i]
   names(x) <- varnames[i]
   C <- kron(mean.to.matrix(x), C)
 #  inmodel <- colnames(C) %in% b.terms
-  print(colnames(C))
-  print(vars.in.terms(colnames(C)))
-  print(vars.in.terms(b.terms))
+  print(colnames(C)[colnames(C) %in% b.terms])
+#  print(tocheck <- colnames(C)[!(colnames(C) %in% b.terms)])
+  tocheck <- colnames(C)[!(colnames(C) %in% b.terms)]
+  if (length(tocheck)>0){
+    needles <- vars.in.terms(tocheck)
+#    print(needles)
+#    print(rownames(needles))
+    haystack <- vars.in.terms(b.terms)[,colnames(needles)]
+    for (j in 1:nrow(needles)) {
+      print(rownames(needles)[j])
+      print(needles[j,])
+      for (k in 1:nrow(haystack)) {
+        if (identical(needles[j,], haystack[k,])) {
+          print("found")
+          print(haystack[k,])
+        } else {
+          print("not found")
+          print(rownames(needles[j,]))
+        }
+      }
+    }
+#    print(haystack)
+  }
+#  print(vars.in.terms(b.terms))
   print("")
 #  C <- C[, inmodel]
 }
