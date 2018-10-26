@@ -57,3 +57,39 @@ vars.in.terms <- function(terms){
   }
   return(term.vars)
 }
+
+matrix.build.clean <- function(x, type="center") {
+  stopifnot(is.numeric(x), type %in% c("center", "scale"))
+  nx <- length(x)
+  varnames <- names(x)
+  
+  C <- matrix(1, ncol=1)
+  colnames(C) <-rownames(C) <- "(Intercept)"
+  
+  for (i in 1:nx){ # over means
+    xc <- x[i]
+    names(xc) <- varnames[i]
+    if (type=="center") { # centering or scaling matrix
+      C <- kron(mean.to.matrix(xc), C)
+    } else {
+      C <- kron(sd.to.matrix(xc), C)
+    }                    # centering or scaling matrix
+    
+    found <- colnames(C)[colnames(C) %in% b.terms]
+    tocheck <- colnames(C)[!(colnames(C) %in% b.terms)]
+    if (length(tocheck)>0){           # if tocheck
+      needles <- vars.in.terms(tocheck)
+      notfound <- NULL
+      haystack <- vars.in.terms(b.terms)[,colnames(needles)]
+      for (j in 1:nrow(needles)) {    # over needle rows
+        for (k in 1:nrow(haystack)) { # over haystack rows
+          if (identical(needles[j,], haystack[k,])) { # if in model
+            found <- unique(c(found, rownames(needles)[j]))
+          } # if in model
+        }   # over haystack rows
+      }     # over needle rows
+    }       # if tocheck
+    C <- C[found, found]
+  }         # over means
+  return(C)
+}

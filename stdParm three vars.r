@@ -1,3 +1,4 @@
+source("stdParm functions.r")
 library(MASS)
 
 nobs <- 100
@@ -17,51 +18,21 @@ b <- coef(lm(y~ x1*x2 + x3, df))
 b.terms <- names(b)
 b
 
-nmeans <- length(x.means)
-varnames <- names(x.means)
-
-S <- C <- matrix(1, ncol=1)
-colnames(S) <-rownames(S) <- colnames(C) <-rownames(C) <- "(Intercept)"
-
-for (i in 1:nmeans){
-  x <- x.means[i]
-  names(x) <- varnames[i]
-  C <- kron(mean.to.matrix(x), C)
-#  inmodel <- colnames(C) %in% b.terms
-  print(colnames(C)[colnames(C) %in% b.terms])
-#  print(tocheck <- colnames(C)[!(colnames(C) %in% b.terms)])
-  tocheck <- colnames(C)[!(colnames(C) %in% b.terms)]
-  if (length(tocheck)>0){
-    needles <- vars.in.terms(tocheck)
-#    print(needles)
-#    print(rownames(needles))
-    haystack <- vars.in.terms(b.terms)[,colnames(needles)]
-    for (j in 1:nrow(needles)) {
-      print(rownames(needles)[j])
-      print(needles[j,])
-      for (k in 1:nrow(haystack)) {
-        if (identical(needles[j,], haystack[k,])) {
-          print("found")
-          print(haystack[k,])
-        } else {
-          print("not found")
-          print(rownames(needles[j,]))
-        }
-      }
-    }
-#    print(haystack)
-  }
-#  print(vars.in.terms(b.terms))
-  print("")
-#  C <- C[, inmodel]
-}
-C
-
-for (i in 1:nmeans){
-  x <- x.sds[i]
-  names(x) <- varnames[i]
-  S <- kron(sd.to.matrix(x), S)
-}
+C <- matrix.build.clean(x.means)
+S <- matrix.build.clean(x.sds, type="scale")
 
 Z <- S %*% C # the order is crucial
 Z
+
+Z%*%b # x-standardized
+
+# Compare
+df$x1.std <- scale(df$x1)
+df$x2.std <- scale(df$x2)
+df$x3.std <- scale(df$x3)
+coef(lm(y~ x1.std*x2.std + x3.std, df))
+
+library(stdBeta)
+stdBeta(lm(y~ x1*x2 + x3, df)) # fully standardized
+
+C%*%b # x-centered
