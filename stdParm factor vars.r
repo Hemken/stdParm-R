@@ -3,7 +3,7 @@ library(MASS)
 
 nobs <- 100
 Sigma <- matrix(c(1, .75, .75, 1), ncol=2)
-X <- as.data.frame(mvrnorm(nobs, c(0,1), Sigma=Sigma))
+X <- as.data.frame(mvrnorm(nobs, c(0,1), Sigma=Sigma)) # this is what MASS if for
 names(X) <- paste0("x", 1:2)
 
 x.means <- colMeans(X)
@@ -16,6 +16,18 @@ y <- with(X,
 
 df <- data.frame(y, X, f)
 
-b <- coef(lm(y~ x1*x2*f, df))
+b <- coef(fit <- lm(y~ x1*x2*f, df))
 b.terms <- names(b)
 b
+
+summary(fit)
+
+fln <- nlevels(f)
+fnames    <- paste0("f", levels(f))
+fnames[1] <- "(Intercept)"
+
+C <- matrix.build.clean(x.means)
+S <- matrix.build.clean(x.sds, type="scale")
+
+Z <- S %*% C # the order is crucial
+Z

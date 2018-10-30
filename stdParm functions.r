@@ -58,8 +58,9 @@ vars.in.terms <- function(terms){
   return(term.vars)
 }
 
-matrix.build.clean <- function(x, type="center") {
-  stopifnot(is.numeric(x), type %in% c("center", "scale"))
+matrix.build.clean <- function(x, terms, type="center") {
+  stopifnot(is.numeric(x), is.character(terms),
+            type %in% c("center", "scale"))
   nx <- length(x)
   varnames <- names(x)
   
@@ -75,12 +76,12 @@ matrix.build.clean <- function(x, type="center") {
       C <- kron(sd.to.matrix(xc), C)
     }                    # centering or scaling matrix
     
-    found <- colnames(C)[colnames(C) %in% b.terms]
-    tocheck <- colnames(C)[!(colnames(C) %in% b.terms)]
+    found <- colnames(C)[colnames(C) %in% terms]
+    tocheck <- colnames(C)[!(colnames(C) %in% terms)]
     if (length(tocheck)>0){           # if tocheck
       needles <- vars.in.terms(tocheck)
       notfound <- NULL
-      haystack <- vars.in.terms(b.terms)[,colnames(needles)]
+      haystack <- vars.in.terms(terms)[,colnames(needles)]
       for (j in 1:nrow(needles)) {    # over needle rows
         for (k in 1:nrow(haystack)) { # over haystack rows
           if (identical(needles[j,], haystack[k,])) { # if in model

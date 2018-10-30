@@ -18,8 +18,8 @@ b <- coef(lm(y~ x1*x2 + x3, df))
 b.terms <- names(b)
 b
 
-C <- matrix.build.clean(x.means)
-S <- matrix.build.clean(x.sds, type="scale")
+C <- matrix.build.clean(x.means, b.terms)
+S <- matrix.build.clean(x.sds, b.terms, type="scale")
 
 Z <- S %*% C # the order is crucial
 Z
