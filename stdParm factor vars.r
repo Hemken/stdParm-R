@@ -1,5 +1,5 @@
 source("stdParm functions.r")
-source("gen_2x_f.r")
+source("gen_ex_models.r")
 
 df <- gen_2x_f(100L, sigma=0.3)
 
@@ -21,3 +21,6 @@ S <- matrix.build.clean(x.sds, b.terms, type="scale")
 
 Z <- S %*% C # the order is crucial
 Z
+ 
+factor.direct.sum(Z,df$f)
+ 

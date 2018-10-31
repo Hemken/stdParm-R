@@ -94,3 +94,28 @@ matrix.build.clean <- function(x, terms, type="center") {
   }         # over means
   return(C)
 }
+
+factor.direct.sum <- function(A, f) {
+  stopifnot(is.matrix(A), is.numeric(A), is.factor(f))
+  # also check symmetry of A
+  
+  fln <- nlevels(f)
+  fnames    <- paste0(deparse(substitute(f)), levels(f))
+  #  fnames[1] <- "(Intercept)"
+  
+  nA <- nrow(A)
+  B <- A
+  
+  for (i in 2:fln) {
+    nB <- nrow(B)
+    Bzeros <- matrix(0, nrow=nB, ncol=nA)
+    colnames(Bzeros) <- paste(fnames[i],colnames(A),sep=":")
+    Azeros <- matrix(0, nrow=nA, ncol=nB)
+    rownames(Azeros) <- paste(fnames[i],rownames(A),sep=":")
+    
+    B <- rbind( cbind( B, Bzeros ),
+                cbind( Azeros, A ) )
+    rownames(B) <- colnames(B) <- sub(":\\(Intercept\\)$", "", colnames(B))
+  }
+  return(B)
+}
