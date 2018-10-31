@@ -1,25 +1,17 @@
 source("stdParm functions.r")
-library(MASS)
+source("gen_2x_f.r")
 
-nobs <- 100
-Sigma <- matrix(c(1, .5, .25, .5, 1, .3, .25, .3, 1), ncol=3)
-X <- as.data.frame(mvrnorm(nobs, c(0,1,2), Sigma=Sigma))
-names(X) <- paste0("x", 1:3)
-
-x.means <- colMeans(X)
-x.sds   <- colSds(X)
-y <- with(X,
-  1 + (-1)*x1 + 2*x2 + (-2)*x1*x2 + 3*x3 + rnorm(nobs)
-)
-
-df <- data.frame(y, X)
+df <- gen_3x(100L, sigma=matrix(c(1,.5,.25,.5,1,.3,.25,.3,1), ncol=3))
 
 b <- coef(lm(y~ x1*x2 + x3, df))
 b.terms <- names(b)
 b
 
-C <- matrix.build.clean(x.means)
-S <- matrix.build.clean(x.sds, type="scale")
+x.means <- colMeans(df[,2:4])
+x.sds   <- colSds(df[,2:4])
+
+C <- matrix.build.clean(x.means, b.terms)
+S <- matrix.build.clean(x.sds, b.terms, type="scale")
 
 Z <- S %*% C # the order is crucial
 Z

@@ -1,23 +1,23 @@
 source("stdParm functions.r")
-library(MASS)
+source("gen_2x_f.r")
 
-nobs <- 100
-Sigma <- matrix(c(1, .75, .75, 1), ncol=2)
-X <- as.data.frame(mvrnorm(nobs, c(0,1), Sigma=Sigma))
-names(X) <- paste0("x", 1:2)
-
-x.means <- colMeans(X)
-x.sds   <- colSds(X)
-
-f <- as.factor(sample(letters[1:3], nobs, replace=TRUE))
-y <- with(X,
-          1 + (-1)*x1 + 2*x2 + (-2)*x1*x2 + 0.5*(f=="b") - 0.5*(f=="c") + rnorm(nobs)
-)
-
-df <- data.frame(y, X, f)
+df <- gen_2x_f(100L, sigma=0.3)
 
 b <- coef(fit <- lm(y~ x1*x2*f, df))
 b.terms <- names(b)
 b
 
 summary(fit)
+
+fln <- nlevels(df$f)
+fnames    <- paste0("f", levels(df$f))
+fnames[1] <- "(Intercept)"
+
+x.means <- colMeans(df[,c("x1","x2")])
+x.sds <- colSds(df[,c("x1","x2")])
+
+C <- matrix.build.clean(x.means, b.terms)
+S <- matrix.build.clean(x.sds, b.terms, type="scale")
+
+Z <- S %*% C # the order is crucial
+Z
