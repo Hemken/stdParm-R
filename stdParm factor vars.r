@@ -3,7 +3,7 @@ source("gen_ex_models.r")
 
 df <- gen_2x_f(100L, sigma=0.3)
 
-b <- coef(fit <- lm(y~ x1*x2*f, df))
+b <- coef(fit <- lm(y~ x1*x2+f*x1, df))
 b.terms <- names(b)
 b
 
@@ -22,5 +22,19 @@ S <- matrix.build.clean(x.sds, b.terms, type="scale")
 Z <- S %*% C # the order is crucial
 Z
  
-factor.direct.sum(Z,df$f)
- 
+Z.plus <- factor.direct.sum(Z,fnames)
+found <- matching.terms(colnames(Z.plus), b.terms)
+Z <- Z.plus[found,found]
+Z
+
+# x-standardized
+b.x <- Z%*%b
+b.x
+
+# fully standardized
+b.x[1] <- b.x[1]-mean(df$y)
+b.z <- b.x/sd(df$y)
+b.z
+
+library(stdBeta)
+stdBeta(fit)

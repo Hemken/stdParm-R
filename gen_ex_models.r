@@ -3,7 +3,7 @@
 gen_2x_f <- function(nobs, means=c(0,0), sigma=0, nlevels=2L,
                      coefs=c(rep(1L, times=4*nlevels)),
                      sd.resid=1) {
-  # factor has no interaction with the x variables
+  # factor has full interaction with the x variables
   # coefs order=first order terms, second order terms, third order terms
   stopifnot(length(nobs)==1, is.integer(nobs))
   stopifnot(length(means)==2, is.numeric(means))
