@@ -1,0 +1,67 @@
+# Full factorial term count
+
+- One variable
+    - 1 0th order term
+    - 1 1st order term
+    
+    total: 2 terms
+    
+- Two variables
+    - 1 0th order term, `choose(2,0)` = `r choose(2,0)`
+    - 2 1st order terms, `choose(2,1)` = `r choose(2,1)`
+    - 1 2nd order term, `choose(2,2)` = `r choose(2,2)`
+    
+    total:  4 terms
+    
+- Three variables
+    - 1 0th order term, `choose(3,0)` = `r choose(3,0)`
+    - 3 1st order terms, `choose(3,1)` = `r choose(3,1)`
+    - 3 2nd order term2, `choose(3,2)` = `r choose(3,2)`
+    - 1 3rd order term2, `choose(3,3)` = `r choose(3,3)`
+    
+    total:  8 terms
+    
+- Four variables
+    ```{R}
+    terms <- rep(0,(4+1))
+    for (i in 0:4) {
+      terms[i+1] <- choose(4,i)
+    }
+    sum(terms)
+    ```
+    
+# Polynomial term count
+Is just $n$ variables, $\times o_{p}$ the polynomial order, choosen 0 and 1 at a time.
+$${n \times o_{p} \choose 0} + {n \times o_{p} \choose 1}$$
+
+- Two variables, polynomial degree 2
+    - `choose(2*2,0)+choose(2*2,1)` = `r choose(2*2,0)+choose(2*2,1)`
+    
+# Factorial combinations of polynomial terms
+- Two variables, polynomial degree 2
+    - 0th order: `r choose(2,0)`
+    - 1st order: `r choose(2,1)*choose(2,1)`, $order \times degree$
+    - 2nd order: `sum(choose(2,0:2))` = `r sum(choose(2,0:2))`
+        - both 1 degree:  1
+        - 1 first degree, 1 squared: 2
+        - both squared: 1
+        
+        total = 4
+        
+    grand total = 9
+    
+- Two variables, polynomial degree 3
+$${2 \choose n}\times{3 \choose 1}^n$$
+    - 0th order:  ${2 \choose 0}\times{3 \choose 1}^0$ =`r choose(2,0)*choose(3,1)^0`
+    - 1st order:  ${2 \choose 1}\times{3 \choose 1}^1$ =`r choose(2,1)*choose(3,1)^1`
+    - 2nd order: ${2 \choose 2}\times{3 \choose 1}^2$ =`r choose(2,2)*choose(3,1)^2`
+        - both degree 1: 1
+        - one degree 1, one squared:  2
+        - one degree 1, one cubed:  2
+        - both degree 2: 1
+        - one degree 2, one degree 3: 2
+        - both degree 3: 1
+        
+        total = 9
+        
+    grand total = 16
