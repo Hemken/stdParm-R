@@ -36,11 +36,11 @@ $$\sum\limits_{i=0}^v {v \choose i}$$
     
 - Two variables
     - 1 0th order term, 
-      (in R) `choose(2,0)` = `r choose(2,0)`
+      (in R) `choose(2,0)` = 1
     - 2 1st order terms, 
-      `choose(2,1)` = `r choose(2,1)`
+      `choose(2,1)` = 2
     - 1 2nd order term, 
-      `choose(2,2)` = `r choose(2,2)`
+      `choose(2,2)` = 1
     
     total:  4 terms
     
@@ -51,23 +51,18 @@ $$\sum\limits_{i=0}^v {v \choose i}$$
     \end{aligned}$$
     
 - Three variables
-    - 1 0th order term, `choose(3,0)` = `r choose(3,0)`
-    - 3 1st order terms, `choose(3,1)` = `r choose(3,1)`
-    - 3 2nd order term2, `choose(3,2)` = `r choose(3,2)`
-    - 1 3rd order term2, `choose(3,3)` = `r choose(3,3)`
+    - 1 0th order term, `choose(3,0)` = 1
+    - 3 1st order terms, `choose(3,1)` = 3
+    - 3 2nd order term2, `choose(3,2)` = 3
+    - 1 3rd order term2, `choose(3,3)` = 1
     
     total:  8 terms
     
-    (in R) `sum(choose(3, 0:3))` = `r sum(choose(3, 0:3))`
+    (in R) `sum(choose(3, 0:3))` = 8
     
 - Four variables
 $$\sum\limits_{i=0}^4 {4 \choose i} =16$$
-    (in R) `sum(choose(4, 0:4))` = `r sum(choose(4, 0:4))`
-    
-### Alternative formula
-An alternative (and simpler) formula is just to realize that you have $v$ variables, and in each term a given variable is either included or it is not.  This gives us
-$$2^v$$
-terms.  However, once we add polynomials, the calculation is no longer as simple as in-or-out!
+    (in R) `sum(choose(4, 0:4))` = 16
     
 ## Polynomial term count
 Next let's consider the number of terms in a polynomial model with no interaction terms.
@@ -79,7 +74,7 @@ $$\sum\limits_{i=0}^1{v \choose i}{d \choose 1}^i$$
 $$\begin{aligned}
 \sum\limits_{i=0}^1{v \choose i}{2 \choose 1}^i&={2 \choose 0}{2 \choose 1}^0 + {2 \choose 1}{2 \choose 1}^1\\&=5
 \end{aligned}$$
-    - (in R) `sum(choose(2,0:1)*choose(2,1)^(0:1))` = `r sum(choose(2,0:1)*choose(2,1)^(0:1))`
+    - (in R) `sum(choose(2,0:1)*choose(2,1)^(0:1))` = 5
     
 ## Factorial combinations of polynomial terms
 Now we combine our previous notions.
@@ -96,13 +91,13 @@ $$\begin{aligned}
 \end{aligned}$$
     - 0th order: 
     
-      `choose(2,0)*choose(2,0)^0` =`r choose(2,0)*choose(2,0)^0`
+      `choose(2,0)*choose(2,0)^0` =1
     - 1st order: 
     
-      `choose(2,1)*choose(2,1)^1` =`r choose(2,1)*choose(2,1)^1`
+      `choose(2,1)*choose(2,1)^1` =4
     - 2nd order: 
     
-      `choose(2,2)*choose(2,1)^2` =`r choose(2,2)*choose(2,1)^2`
+      `choose(2,2)*choose(2,1)^2` =4
       
         - both 1 degree:  1
         - 1 first degree, 1 squared: 2
@@ -114,9 +109,9 @@ $$\begin{aligned}
     
 - Two variables, polynomial degree 3
 $$\sum\limits_{i=0}^2{2 \choose i}{3 \choose 1}^i$$
-    - 0th order:  ${2 \choose 0}\times{3 \choose 1}^0$ =`r choose(2,0)*choose(3,1)^0`
-    - 1st order:  ${2 \choose 1}\times{3 \choose 1}^1$ =`r choose(2,1)*choose(3,1)^1`
-    - 2nd order: ${2 \choose 2}\times{3 \choose 1}^2$ =`r choose(2,2)*choose(3,1)^2`
+    - 0th order:  ${2 \choose 0}\times{3 \choose 1}^0$ =1
+    - 1st order:  ${2 \choose 1}\times{3 \choose 1}^1$ =6
+    - 2nd order: ${2 \choose 2}\times{3 \choose 1}^2$ =9
         - both degree 1: 1
         - one degree 1, one squared:  2
         - one degree 1, one cubed:  2
@@ -128,7 +123,7 @@ $$\sum\limits_{i=0}^2{2 \choose i}{3 \choose 1}^i$$
         
     grand total = 16
     
-    `sum(choose(2,0:2)*choose(3,1)^(0:2))` =`r sum(choose(2,0:2)*choose(3,1)^(0:2))`
+    `sum(choose(2,0:2)*choose(3,1)^(0:2))` =16
     
 ## Back to the original question ...
 Our initial example was to count the terms in a full factorial model with three variables of polynomial degree 2.
@@ -136,4 +131,4 @@ $$\sum\limits_{i=0}^v{v \choose i}{d \choose 1}^i$$
 Here $v=3$ and $d=2$, so we have
 $$\sum\limits_{i=0}^3{3 \choose i}{2 \choose 1}^i$$
 Which gives us
-`sum(choose(3,0:3)*choose(2,1)^(0:3))` =`r sum(choose(3,0:3)*choose(2,1)^(0:3))` terms.
+`sum(choose(3,0:3)*choose(2,1)^(0:3))` =27 terms.
