@@ -49,23 +49,29 @@ gen_3x <- function(nobs=100L, means=c(0,0,0), sigma=diag(nrow=3,ncol=3),
   return(data.frame(y, x1, x2, x3))
 }
 
-# gen_2x_poly <- function(nobs=100L, means=c(0,0), sigma=diag(nrow=2,ncol=2), 
-#                    coefs=c(rep(1L, times=8)),
-#                    sd.resid=1) {
-#   stopifnot(length(nobs)==1, is.integer(nobs))
-#   stopifnot(length(means)==3, is.numeric(means))
-#   stopifnot(is.matrix(sigma), is.numeric(sigma))
-#   stopifnot(length(coefs)==8, is.numeric(coefs), !all(coefs==0))
-#   stopifnot(length(sd.resid)==1, is.numeric(sd.resid), sd.resid>0)
-#   
-#   require(MASS)
-#   
-#   X <- as.data.frame(mvrnorm(nobs, means, Sigma=sigma))
-#   x1 <- X[,1]; x2 <- X[,2]; x3 <- X[,3]
-#   
-#   mmat <- model.matrix(~x1*x2*x3)
-#   
-#   y <- mmat%*%(coefs) + rnorm(nobs, sd=sd.resid)
-#   
-#   return(data.frame(y, x1, x2, x3))
-# }
+gen_2x_poly <- function(nobs=100L, means=c(0,0), sigma=diag(nrow=2,ncol=2),
+                   coefs=c(rep(1L, times=9)),
+                   sd.resid=1) {
+  stopifnot(length(nobs)==1, is.integer(nobs))
+  stopifnot(length(means)==2, is.numeric(means))
+  stopifnot(is.matrix(sigma), is.numeric(sigma))
+  stopifnot(length(coefs)==9, is.numeric(coefs), !all(coefs==0))
+  stopifnot(length(sd.resid)==1, is.numeric(sd.resid), sd.resid>0)
+
+  require(MASS)
+# nobs=100L
+# means=c(0,0)
+# sigma=matrix(c(1, .3,.3,1), ncol=2)
+# coefs=c(rep(1L, times=9))
+# sd.resid=1
+
+  X <- as.data.frame(mvrnorm(nobs, means, Sigma=sigma))
+  x1 <- X[,1]; x2 <- X[,2]
+  x1sq <- x1^2; x2sq <- x2^2
+
+  mmat <- model.matrix(~(x1+x1sq)*(x2+x2sq))
+
+  y <- mmat%*%(coefs) + rnorm(nobs, sd=sd.resid)
+
+  return(data.frame(y, x1, x2))
+}
