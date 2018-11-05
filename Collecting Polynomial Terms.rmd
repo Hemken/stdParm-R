@@ -1,0 +1,53 @@
+---
+title: "Collecting Polynomial Terms"
+author: "Doug Hemken"
+date: "November 5, 2018"
+output: html_fragment
+---
+
+```{r, echo=FALSE}
+source("stdParm functions.r")
+```
+When using Kronecker products to form polynomial transformations, we want 
+to collect like terms.  That is, if I have a variable $x$ with mean
+$\mu$ in an equation
+$$y = \beta_0 + \beta_1 x + \beta_2 x^2$$
+that I would like to recenter, with $x_\delta = x - \mu$ so that
+$$y = \beta_{\delta 0} + \beta_{\delta 1}x_\delta + \beta_{\delta 2} x_\delta^2$$
+The basic recentering matrix can be formed in the same manner as
+for interaction terms.
+
+```{r}
+mu <- 3
+names(mu) <- "x"
+A <- mean.to.matrix(mu) # recentering x - 3
+C <- kron(A,A)
+C
+```
+
+However, notice that we have two $x$ terms in the rows and columns.  This
+implies that our original equation is of the form
+$$y = b_0 + b_1 x + b_2 x + b_3 x^2$$
+We can rewrite our original equation in this form, letting $b_2=0$ - the
+$x$ terms were already collected in our original equation.
+
+Now notice that this coefficient choice zeros out one column of our
+recentering matrix.  We could write this more succinctly by dropping
+the zeroed column and leaving our coefficient vector in it's original form.
+
+```{r}
+cnames <- colnames(C)
+C <- C %*% diag(1,4,4)[,-3]
+colnames(C) <- cnames[-3]
+C
+```
+
+We still have two rows for the $x_\delta$ terms. These do ***not*** zero
+out, so we want to collect them in a single term.
+
+```{r}
+rnames <- rownames(C)
+C <- cbind(c(1,0,0),c(0,1,0),c(0,1,0),c(0,0,1)) %*% C
+rownames(C) <- rnames[-3]
+C
+```

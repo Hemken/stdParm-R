@@ -1,0 +1,35 @@
+
+
+
+<p>When using Kronecker products to form polynomial transformations, we want to collect like terms. That is, if I have a variable <span class="math inline">\(x\)</span> with mean <span class="math inline">\(\mu\)</span> in an equation <span class="math display">\[y = \beta_0 + \beta_1 x + \beta_2 x^2\]</span> that I would like to recenter, with <span class="math inline">\(x_\delta = x - \mu\)</span> so that <span class="math display">\[y = \beta_{\delta 0} + \beta_{\delta 1}x_\delta + \beta_{\delta 2} x_\delta^2\]</span> The basic recentering matrix can be formed in the same manner as for interaction terms.</p>
+<pre class="r"><code>mu &lt;- 3
+names(mu) &lt;- &quot;x&quot;
+A &lt;- mean.to.matrix(mu) # recentering x - 3
+C &lt;- kron(A,A)
+C</code></pre>
+<pre><code>##             (Intercept) x x x:x
+## (Intercept)           1 3 3   9
+## x                     0 1 0   3
+## x                     0 0 1   3
+## x:x                   0 0 0   1</code></pre>
+<p>However, notice that we have two <span class="math inline">\(x\)</span> terms in the rows and columns. This implies that our original equation is of the form <span class="math display">\[y = b_0 + b_1 x + b_2 x + b_3 x^2\]</span> We can rewrite our original equation in this form, letting <span class="math inline">\(b_2=0\)</span> - the <span class="math inline">\(x\)</span> terms were already collected in our original equation.</p>
+<p>Now notice that this coefficient choice zeros out one column of our recentering matrix. We could write this more succinctly by dropping the zeroed column and leaving our coefficient vector in it’s original form.</p>
+<pre class="r"><code>cnames &lt;- colnames(C)
+C &lt;- C %*% diag(1,4,4)[,-3]
+colnames(C) &lt;- cnames[-3]
+C</code></pre>
+<pre><code>##             (Intercept) x x:x
+## (Intercept)           1 3   9
+## x                     0 1   3
+## x                     0 0   3
+## x:x                   0 0   1</code></pre>
+<p>We still have two rows for the <span class="math inline">\(x_\delta\)</span> terms. These do <strong><em>not</em></strong> zero out, so we want to collect them in a single term.</p>
+<pre class="r"><code>rnames &lt;- rownames(C)
+C &lt;- cbind(c(1,0,0),c(0,1,0),c(0,1,0),c(0,0,1)) %*% C
+rownames(C) &lt;- rnames[-3]
+C</code></pre>
+<pre><code>##             (Intercept) x x:x
+## (Intercept)           1 3   9
+## x                     0 1   6
+## x:x                   0 0   1</code></pre>
+
