@@ -1,12 +1,15 @@
 ---
 title: "Collecting Polynomial Terms"
 author: "Doug Hemken"
-date: "November 5, 2018"
-output: html_fragment
+date: "November 6, 2018"
+output: html_document
 ---
 
 ```{r, echo=FALSE}
+knitr::opts_chunk$set(comment=NA)
 source("stdParm functions.r")
+b <- c(1,1,1)
+names(b) <- c("(Intercept)", "x", "x:x")
 ```
 When using Kronecker products to form polynomial transformations, we want 
 to collect like terms.  That is, if I have a variable $x$ with mean
@@ -37,8 +40,11 @@ the zeroed column and leaving our coefficient vector in it's original form.
 
 ```{r}
 cnames <- colnames(C)
-C <- C %*% diag(1,4,4)[,-3]
-colnames(C) <- cnames[-3]
+# C <- C %*% diag(1,4,4)[,-3]
+keepcols <- match(names(b), colnames(C))
+C <- C[, keepcols]
+# colnames(C) <- cnames[-3]
+colnames(C) <- cnames[keepcols]
 C
 ```
 
@@ -46,8 +52,14 @@ We still have two rows for the $x_\delta$ terms. These do ***not*** zero
 out, so we want to collect them in a single term.
 
 ```{r}
+cnames <- colnames(C)
 rnames <- rownames(C)
-C <- cbind(c(1,0,0),c(0,1,0),c(0,1,0),c(0,0,1)) %*% C
-rownames(C) <- rnames[-3]
+rowcombine <- matrix(NA, nrow=length(cnames), ncol=length(rnames))
+for (i in 1:length(cnames)) {
+  rowcombine[i,] <- rnames %in% cnames[i]
+}
+# rowcombine
+C <- rowcombine %*% C
+rownames(C) <- cnames
 C
 ```
