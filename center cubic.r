@@ -8,9 +8,19 @@ abline(h=0, v=0)
 lines(predict(model1)~x, col="blue", lwd=2)
 
 summary(model2 <- lm(y ~ poly(x,3)))
-plot(y~poly(x,1), main="Orthonormal")
+px <- poly(x,3)
+plot(y~px[,1], main="Orthonormal 1")
 abline(h=0, v=0)
-lines(predict(model2)~poly(x,1), col="blue", lwd=2)
+lines(predict(model2)~px[,1], col="blue", lwd=2)
+
+# plot(y~px[,2], main="Orthonormal 2")
+# abline(h=0, v=0)
+# lines(predict(model2)~px[,2], col="blue", lwd=2)
+# 
+# plot(y~px[,3], main="Orthonormal 3")
+# abline(h=0, v=0)
+# lines(predict(model2)~px[,3], col="blue", lwd=2)
+
 
 x <- x - mean(x)
 
