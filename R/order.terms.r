@@ -7,6 +7,7 @@ order.terms <- function (findthese, inthose) {
   haystack <- haystack[, colnames(needles)]
   found <- NULL
   found.as <- NULL
+  found.at <- NULL
   for (j in 1:nrow(needles)) {    # over needle rows
     # print(paste("checking",j))
     # print(needles[j,])
@@ -18,10 +19,11 @@ order.terms <- function (findthese, inthose) {
         if (all(extra[k,]==FALSE)) { # if first order
           found <- unique(c(found, rownames(needles)[j]))
           found.as <- unique(c(found.as,rownames(haystack)[k]))
+          found.at <- unique(c(found.at,k))
         } # if first order
       } # if in model
     }   # over haystack rows
     # print("")
   }     # over needle rows
-  return(list(found=found, found.as=found.as))
+  return(list(found=found, found.as=found.as, found.at=found.at))
 }

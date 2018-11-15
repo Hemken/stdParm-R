@@ -35,8 +35,10 @@ S <- matrix.build.clean(x.sds, b.terms, type="scale")
 Z <- S %*% C # the order is crucial
 
 termorder <- order.terms(colnames(Z), b.terms)
+colorder <- order(termorder$found.at)
 Z <- Z[termorder$found, termorder$found]
 rownames(Z) <- colnames(Z) <- termorder$found.as
+Z <- Z[colorder, colorder]
 Z
 
 ###################################
@@ -54,8 +56,10 @@ found <- matching.terms(colnames(Z.plus), b.terms)
 Z <- Z.plus[found,found]
 Z
 termorder <- order.terms(colnames(Z), b.terms)
+colorder <- order(termorder$found.at)
 Z <- Z[termorder$found, termorder$found]
 rownames(Z) <- colnames(Z) <- termorder$found.as
+Z <- Z[colorder, colorder]
 Z
 
 fln <- nlevels(df$f2)
