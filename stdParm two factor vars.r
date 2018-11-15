@@ -33,6 +33,10 @@ S <- matrix.build.clean(x.sds, b.terms, type="scale")
 
 # combine to standardize
 Z <- S %*% C # the order is crucial
+
+termorder <- order.terms(colnames(Z), b.terms)
+Z <- Z[termorder$found, termorder$found]
+rownames(Z) <- colnames(Z) <- termorder$found.as
 Z
 
 ###################################
@@ -48,6 +52,10 @@ fnames[1] <- "(Intercept)"
 Z.plus <- factor.direct.sum(Z,fnames)
 found <- matching.terms(colnames(Z.plus), b.terms)
 Z <- Z.plus[found,found]
+Z
+termorder <- order.terms(colnames(Z), b.terms)
+Z <- Z[termorder$found, termorder$found]
+rownames(Z) <- colnames(Z) <- termorder$found.as
 Z
 
 fln <- nlevels(df$f2)
