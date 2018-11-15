@@ -6,7 +6,7 @@ df <- gen_2x_2f(100L, sigma=0.3)
 #   variables, f1 and f2, with levels {a,b} and {A,B}
 
 # Original model, to be centered and scaled
-summary(fit <- lm(y~ x1*x2+f1*x1+f2*x2, df))
+summary(fit <- lm(y~ x2*x1+f1*x1+f2*x2, df))
 
 # extract coefficients, term names
 #   b.terms is the target list of terms to represent
@@ -59,6 +59,8 @@ Z.plus <- factor.direct.sum(Z,fnames)
 found <- matching.terms(colnames(Z.plus), b.terms)
 Z <- Z.plus[found,found]
 Z
+
+Z[b.terms,b.terms]
 
 # Now use the result, and check it
 # x-standardized
