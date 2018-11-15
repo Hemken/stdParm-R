@@ -1,5 +1,5 @@
 source("stdParm functions.r")
-source("gen_2x_f.r")
+source("gen_ex_models.r")
 
 df <- gen_3x(100L, sigma=matrix(c(1,.5,.25,.5,1,.3,.25,.3,1), ncol=3))
 
@@ -14,6 +14,8 @@ C <- matrix.build.clean(x.means, b.terms)
 S <- matrix.build.clean(x.sds, b.terms, type="scale")
 
 Z <- S %*% C # the order is crucial
+Z 
+Z <- Z[names(b),names(b)]
 Z
 
 Z%*%b # x-standardized
@@ -27,4 +29,4 @@ coef(lm(y~ x1.std*x2.std + x3.std, df))
 library(stdBeta)
 stdBeta(lm(y~ x1*x2 + x3, df)) # fully standardized
 
-C%*%b # x-centered
+C[names(b),names(b)]%*%b # x-centered

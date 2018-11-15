@@ -39,6 +39,7 @@ Z.plus <- factor.direct.sum(Z,fnames)
 found <- matching.terms(colnames(Z.plus), b.terms)
 Z <- Z.plus[found,found]
 Z
+Z[b.terms,b.terms]
 
 # Now use the result, and check it
 # x-standardized
