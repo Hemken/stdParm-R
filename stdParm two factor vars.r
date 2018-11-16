@@ -32,14 +32,12 @@ C <- matrix.build.clean(x.means, b.terms)
 S <- matrix.build.clean(x.sds, b.terms, type="scale")
 
 # combine to standardize
-Z <- S %*% C # the order is crucial
+Z <- S %*% C # the matrix multiplication order is crucial
 
-termorder <- order.terms(colnames(Z), b.terms)
-colorder <- order(termorder$found.at)
-Z <- Z[termorder$found, termorder$found]
-rownames(Z) <- colnames(Z) <- termorder$found.as
-Z <- Z[colorder, colorder]
-Z
+# drop extra columns (there shouldn't be any),
+#   fix names to match variable order within terms,
+#   reorder columns and rows to match given coefficients
+Z <- clean.order(Z, b.terms)
 
 ###################################
 # Now combine with factor variables
@@ -52,15 +50,7 @@ fnames[1] <- "(Intercept)"
 
 # given the factor term names, build Z
 Z.plus <- factor.direct.sum(Z,fnames)
-found <- matching.terms(colnames(Z.plus), b.terms)
-Z <- Z.plus[found,found]
-Z
-termorder <- order.terms(colnames(Z), b.terms)
-colorder <- order(termorder$found.at)
-Z <- Z[termorder$found, termorder$found]
-rownames(Z) <- colnames(Z) <- termorder$found.as
-Z <- Z[colorder, colorder]
-Z
+Z <- clean.order(Z.plus, b.terms)
 
 fln <- nlevels(df$f2)
 fnames    <- paste0("f2", levels(df$f2))
@@ -68,16 +58,16 @@ fnames[1] <- "(Intercept)"
 
 # given the factor term names, build Z
 Z.plus <- factor.direct.sum(Z,fnames)
-found <- matching.terms(colnames(Z.plus), b.terms)
-Z <- Z.plus[found,found]
-Z
-
-Z[b.terms,b.terms]
+Z <- clean.order(Z.plus, b.terms)
 
 # Now use the result, and check it
 # x-standardized
 b.x <- Z%*%b
 b.x
+
+df$x1 <- scale(df$x1)
+df$x2 <- scale(df$x2)
+cbind(b.x,coef(update(fit)))
 
 # fully standardized
 b.x[1] <- b.x[1]-mean(df$y)

@@ -1,4 +1,4 @@
-order.terms <- function (findthese, inthose) {
+match.terms <- function (findthese, inthose) {
   needles <- vars.in.terms(findthese)
   haystack <- vars.in.terms(inthose)
   matchcols <- match(colnames(haystack), colnames(needles))
