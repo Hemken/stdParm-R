@@ -65,9 +65,10 @@ Z <- clean.order(Z.plus, b.terms)
 b.x <- Z%*%b
 b.x
 
-df$x1 <- scale(df$x1)
-df$x2 <- scale(df$x2)
-cbind(b.x,coef(update(fit)))
+df2 <- df
+df2$x1 <- scale(df$x1)
+df2$x2 <- scale(df$x2)
+cbind(b.x,coef(fit2 <- update(fit, data=df2)))
 
 # fully standardized
 b.x[1] <- b.x[1]-mean(df$y)
