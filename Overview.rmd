@@ -1,0 +1,74 @@
+---
+title: "Direct Coefficient Transformations"
+author: "Doug Hemken"
+date: "November 27, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Introduction
+
+For analysts working with linear models, recentering and rescaling the variables under analysis
+is such a routine task it hardly garners any attention.  In fields where there are no natural,
+physical units of measurement - education and psychology, to name two - it is common practice
+to refer to standardized units of measure.  It is not uncommon to see analysts fit and report
+the same model in both the original and standardized units of measurement.
+
+## The Problem: Higher Order Models
+
+## Direct Transformation
+Transforming the coefficients and the variance-covariance matrix of a linear model with a single
+continous outcome and a single continuous predictor is straighforward.  We can denote the
+original model
+$$Y=X\beta$$
+where $\beta$ is a vector of coefficients of length 2, $Y$ is a column vector, and $X$ is a
+matrix composed of column vectors $\begin{bmatrix} 1_n & x \end{bmatrix}$.
+
+If we wish to re-express our model in terms of $x_c=x-\mu_x$, an arbitrarily recentered $x$,
+we can do so without calculating the $x_c$.
+We use a linear transformation
+$C$ to map the vector of coefficients $\beta$ to a vector of centered coefficients, $\beta_C$.
+$$\beta_C=C\beta$$
+where $C$ takes the form
+$$C=\begin{bmatrix}1 & \mu \\ 0 & 1 \end{bmatrix}$$
+
+### Simple Recentering Example
+It is worth noting that "recentering" may be done with any arbitrary constant, although
+it is perhaps most often done with a sample mean.
+```{r example1}
+example <- lm(mpg ~ wt, data=mtcars)
+#coef(example)
+C <- matrix(c(1,0,mean(mtcars$wt),1), ncol=2)
+C%*%coef(example)
+# check by recentering the *data*
+wtcentered <- mtcars$wt - mean(mtcars$wt)
+check <- lm(mpg ~ wtcentered, data=mtcars)
+coef(check)
+# and example the variance-covariance transformation
+#vcov(example)
+C%*%vcov(example)%*%t(C)
+vcov(check)
+norm(C%*%vcov(example)%*%t(C)-vcov(check), "F")
+```
+
+A change of basis for the column space of $X$ induces a change of basis for the column
+space of the coefficient vector, and a change of basis for the row and column space
+of the variance-covariance matrix.
+
+## Recentering Two Continuous Variables
+Now consider a model with two continuous independent variables and an interaction term,
+so the columns of $X$ are $\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}$.  We
+compose the coefficient change of basis from the two simple transformations as a direct
+product.  Denote
+$$C_1=\begin{bmatrix}1 & \mu_1 \\ 0 & 1 \end{bmatrix}$$
+$$C_2=\begin{bmatrix}1 & \mu_2 \\ 0 & 1 \end{bmatrix}$$
+Then
+$$C = C_2 \otimes C_1 = \begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
+  0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}$$
+  
+While this is simple to produce in theory, in practice attention must be
+given to the column ordering:  to use $C$ we must recognize that the
+column space is ordered $\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}$,
+so the ordering of the coeffient vector and the variance-covariance matrix must
+match this (perhaps through permutation).

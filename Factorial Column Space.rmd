@@ -1,10 +1,10 @@
 ---
 title: "Factorial Models, Kronecker Products, and Interaction Terms"
 author: "Doug Hemken"
-date: "November 22, 2018"
+date: "November 27, 2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ## Interaction Terms and Factorial Models
@@ -19,7 +19,7 @@ A model of a response with a continuous variable includes both an intercept and 
 This is a first-order model, with a zero-order term and a first-order term.  Adding
 categorical variables to the model adds more intercepts, or zero-order terms.  Adding
 continuous variables adds more slopes, or first-order terms.  Such additive models
-are first-order models.
+are all first-order models.
 
 An interaction term is formed as the product of two variables.  A product of categorical
 variables adds intercepts to the model.  The interaction of a categorical variable and
@@ -41,11 +41,13 @@ Consider three models
 - $y = d_0 + d_1x +d_2z + d_3xz$, or $y=Ad$
 
 The column space a $A$ may be formed as an outer product of the column spaces of
-$X$ and $Z$.  Denote $X = [\begin{array} & 1_x & x \end{array}]$ and
-$Z = [\begin{array} & 1_z & z \end{array}]$.  Then
-$$X \otimes Z = [\begin{array} & 1_x & x \end{array}] \otimes[\begin{array} & 1_z & z \end{array}]$$
+$X$ and $Z$.  Denote $X = [\begin{matrix} & 1_x & x \end{matrix}]$ and
+$Z = [\begin{matrix} & 1_z & z \end{matrix}]$.  Then
+$$X \otimes Z = \begin{bmatrix} & 1_x & x \end{bmatrix}
+  \otimes\begin{bmatrix} & 1_z & z \end{bmatrix}$$
 This operation produces a matrix with the correct column space of $A$. 
-$$[\begin{array} & 1_x1_z & 1_xz &x1_z & xz \end{array}]=[\begin{array} & 1 & z &x & xz \end{array}]$$
+$$\begin{bmatrix} & 1_x1_z & 1_xz &x1_z & xz \end{bmatrix}=
+  \begin{bmatrix} & 1 & z &x & xz \end{bmatrix}$$
 (However, our row space is a subset of the outer product of the rows, which are also
 produced by any Kronecker operation.  So the model matrix for a model with interaction
 terms is a submatrix of the Kronecker product(s) of the zero- and first-order terms.  The
