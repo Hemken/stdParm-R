@@ -1,21 +1,39 @@
 ---
 title: "Direct Coefficient Transformations"
 author: "Doug Hemken"
-date: "November 27, 2018"
+date: "November 30, 2018"
 output:
-  pdf_document: default
+  pdf_document: 
+    toc: true
+    highlight: null
   html_document: default
 ---
+
+```{r knitrsetup, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(comment=NA)
+```
 
 ## Introduction
 
 For analysts working with linear models, recentering and rescaling the variables under analysis
-is such a routine task it hardly garners any attention.  In fields where there are no natural,
+is such a routine task it hardly garners attention.  In fields where there are no natural,
 physical units of measurement - education and psychology, to name two - it is common practice
 to refer to standardized units of measure.  It is not uncommon to see analysts fit and report
 the same model in both the original and standardized units of measurement.
 
 ## The Problem: Higher Order Models
+
+For additive models - models with intercepts and slopes of
+single variables to polynomial degree one - the analyst can directly transform the
+coefficients in the model via a classic formula that appears in most textbooks.
+However, once interaction terms and higher order polynomial terms appear in a
+model, the classic formula produces coefficients that are difficult to interpret,
+and standard practice is to recalculate the data, then refit the model.  Available
+software does the former, perhaps as a legacy of the sweep operations that were
+once the hot topic.  Refitting the model to recalculated data has the advantage
+that software also produces a variance-covariance matrix appropriate to the
+transformed coefficients, and sets up the software for post-estimation operations
+with the transformed model
 
 ## Direct Transformation
 Transforming the coefficients and the variance-covariance matrix of a linear model with a single
@@ -36,19 +54,29 @@ $$C=\begin{bmatrix}1 & \mu \\ 0 & 1 \end{bmatrix}$$
 ### Simple Recentering Example
 It is worth noting that "recentering" may be done with any arbitrary constant, although
 it is perhaps most often done with a sample mean.
-```{r example1}
+```{r ex1-init}
 example <- lm(mpg ~ wt, data=mtcars)
-#coef(example)
+```
+Here the coefficients are recentered *as if* the $x$ variable `wt` were
+recentered to the sample mean.
+```{r ex1-direct}
 C <- matrix(c(1,0,mean(mtcars$wt),1), ncol=2)
 C%*%coef(example)
-# check by recentering the *data*
+```
+We can check that this agrees with recentering the data, then refitting
+the model.
+```{r ex1-data}
 wtcentered <- mtcars$wt - mean(mtcars$wt)
 check <- lm(mpg ~ wtcentered, data=mtcars)
 coef(check)
-# and example the variance-covariance transformation
-#vcov(example)
+```
+
+We can also use the same recentering matrix to transform the variance-covariance
+matrix of the coefficients.
+```{r ex1-vcov}
 C%*%vcov(example)%*%t(C)
 vcov(check)
+# check equality
 norm(C%*%vcov(example)%*%t(C)-vcov(check), "F")
 ```
 
@@ -72,3 +100,37 @@ given to the column ordering:  to use $C$ we must recognize that the
 column space is ordered $\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}$,
 so the ordering of the coeffient vector and the variance-covariance matrix must
 match this (perhaps through permutation).
+
+In order build a recentering matrix, then, we need to collect a labelled vector of
+recentering constants, and an ordered vector of coefficient terms.
+
+```{r ex2-init}
+source("stdParm functions.r")
+
+ex2 <- lm(mpg ~ wt*disp, data=mtcars)        # the base model
+x.means <- colMeans(mtcars[,c("wt","disp")]) # recentering constants (means)
+b.terms <- names(coef(ex2))                  # coefficients/terms
+
+C <- matrix.build.clean(x.means, b.terms)
+C
+```
+
+This, then, is what we use to produce recentered coefficients, and the accompanying
+variance-covariance matrix.
+
+```{r ex2-direct}
+C %*% coef(ex2)
+
+C %*% vcov(ex2) %*% C
+```
+
+## Interaction Terms and Outer Products
+The data are modeled in an outer product of the column space.  In transforming the
+coefficients, we need the same same vector space for both columns and rows - the 
+Kronecker operator provides this very neatly.
+
+## Less-Than Full Factorial Models
+An outer product with terms zeroed out.
+
+## Polynomial Terms
+An outer product with terms collected
