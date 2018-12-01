@@ -1,12 +1,14 @@
 ---
 title: "Direct Coefficient Transformations"
 author: "Doug Hemken"
-date: "November 30, 2018"
+date: "`r Sys.Date()`"
 output:
   pdf_document: 
-    toc: true
-    highlight: null
-  html_document: default
+    highlight: NULL
+    toc: TRUE
+  html_document: 
+    highlight: NULL
+    toc: TRUE
 ---
 
 ```{r knitrsetup, echo=FALSE, results="hide"}
