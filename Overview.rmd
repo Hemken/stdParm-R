@@ -3,10 +3,11 @@ title: "Direct Coefficient Transformations"
 author: "Doug Hemken"
 date: "`r Sys.Date()`"
 output:
-  html_document: 
+  pdf_document: 
+    keep_tex: TRUE
     highlight: NULL
     toc: TRUE
-  pdf_document: 
+  html_document: 
     highlight: NULL
     toc: TRUE
 ---
@@ -223,13 +224,47 @@ But here we see that our recentered model gains a term and a coefficient, $\beta
 
 The highest order term in which a variable appears is always unchanged by recentering;
 lower order terms change when any of the *other* variables in a higher order term
-which includes the variables in the lower order term are recentered.  
+which includes the variables in the lower order term are recentered. 
 Going back to the additive model, consisting of only first-order
 (slope) and zero-order (intercept) terms, we see that only the intercept changes
 when the first order $x_i$ are recentered.
 
+[Checking for missing lower order terms in not currently implemented.  However, this
+should be easy to accomplish:  drop columns in a full factorial $C$ or $S$ not included
+in the coefficient vector (i.e. not among the terms), then check for rows that are
+zero vectors and drop (only) those.]
+
 ## Polynomial Terms
-An outer product with terms collected
+An outer product with terms collected.
+
+Like less-than-full factorial models, models with polynomial terms are worth a little
+extra scrutiny.  Consider the model
+$$y = \beta_0 + \beta_1x + \beta_3x^2$$
+If we rewrite this as
+$$y = \beta_0 + \beta_1x + \beta_2x +\beta_3xx$$
+it looks like a factorial model. But all the effect of $x$ is
+collected in a single term, $\beta_1$, so $\beta_2=0$.  This is perhaps easier to see
+if we look at the recentering transformation
+$$\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu &\mu &\mu\mu \\
+  0 &1 &0 &\mu \\ 0 &0 &1 &\mu \\ 0 &0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_2 \\ \beta_3  \end{bmatrix}$$
+If we take $\beta_2=0$, then we can simplify as before
+$$\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu &\mu\mu \\
+  0 &1 &\mu \\ 0 &0 &\mu \\ 0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_3  \end{bmatrix}$$
+But now $\beta_1^c$ and $\beta_1^c$ both have part of the effect of a recentered $x_1$.
+If we collect these terms we end up with
+$$\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu &\mu\mu \\
+  0 &1 &2\mu \\ 0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_3  \end{bmatrix}$$
+Models that include terms to any polynomial degree can be handled in this manner.
+
+Polynomial models where higher degree terms are included while dropping lower degree terms,
+when recentered, will have the lower order terms re-emerge, just as we saw with
+less-than-full factorial models with dropped lower order terms.
 
 ## Categorical terms
 Variables neither recentered nor rescaled produce a direct sum/block diagonal
