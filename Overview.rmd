@@ -3,10 +3,10 @@ title: "Direct Coefficient Transformations"
 author: "Doug Hemken"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: 
+  html_document: 
     highlight: NULL
     toc: TRUE
-  html_document: 
+  pdf_document: 
     highlight: NULL
     toc: TRUE
 ---
@@ -27,35 +27,69 @@ the same model in both the original and standardized units of measurement.
 
 For additive models - models with intercepts and slopes of
 single variables to polynomial degree one - the analyst can directly transform the
-coefficients in the model via a classic formula that appears in most textbooks.
+coefficients in the model via a classic formula that appears in most textbooks. 
+Consider, for example, the model
+$$y = \beta_0 + \beta_1x_1 + \beta_2x_2$$
+where $x_1$ and $x_2$ are continuous variables.  If we transform the data so that
+all the variables are centered, the transformed coefficients for this model are 
+given by given by $\beta_0=0$ and $\beta_i=\beta_i$
+If we further transform the data so that
+all variables are standardized, the transformed coefficients for this model are
+given by $\beta_0=0$ and
+$$\beta_i=\frac{\sigma_{x_i}}{\sigma_y}\beta_i$$
+
 However, once interaction terms and higher order polynomial terms appear in a
-model, the classic formula produces coefficients that are difficult to interpret,
-and standard practice is to recalculate the data, then refit the model.  Available
-software does the former, perhaps as a legacy of the sweep operations that were
-once the hot topic.  Refitting the model to recalculated data has the advantage
+model, the classic approach requires centering and rescaling higher order terms
+using means and standard deviations of the higher order data vectors, independent
+of the rescaling of lower order terms.  This produces coefficients that are difficult
+to interpret, because they are on different scales.  While this can be useful
+for some purposes, such as calculating predicted values and residuals,
+standard practice where the
+coefficients are to be interpretable is to recalculate the data, then refit the model.  
+
+Available
+software does calculates standardized coefficients directly using the classic
+approach, perhaps as a legacy of the sweep operations of the 1970s. 
+Refitting the model to recalculated data has the advantage
 that software also produces a variance-covariance matrix appropriate to the
 transformed coefficients, and sets up the software for post-estimation operations
-with the transformed model
+with the transformed model.
+
+It seems to be little appreciated that the coefficients for recentered and rescaled
+(including standardized) models can be easily calculated directly.
 
 ## Direct Transformation
 Transforming the coefficients and the variance-covariance matrix of a linear model with a single
-continous outcome and a single continuous predictor is straighforward.  We can denote the
-original model
+continous outcome and a single continuous predictor is straighforward.  Consider the simple model
+$$y = b_0 + b_1x$$
+or in the usual matrix form
 $$Y=X\beta$$
-where $\beta$ is a vector of coefficients of length 2, $Y$ is a column vector, and $X$ is a
-matrix composed of column vectors $\begin{bmatrix} 1_n & x \end{bmatrix}$.
 
-If we wish to re-express our model in terms of $x_c=x-\mu_x$, an arbitrarily recentered $x$,
+If we wish to recenter our model in terms of $x_c=x-\mu_x$, an arbitrarily recentered $x$,
 we can do so without calculating the $x_c$.
 We use a linear transformation
 $C$ to map the vector of coefficients $\beta$ to a vector of centered coefficients, $\beta_C$.
 $$\beta_C=C\beta$$
-where $C$ takes the form
+where $C$ takes the form [reference:  Searle?  Graybill?]
 $$C=\begin{bmatrix}1 & \mu \\ 0 & 1 \end{bmatrix}$$
+Rescaling in terms of $x_z=\frac{x_c}{\sigma}$ can be done directly with the
+linear transformation
+$$S=\begin{bmatrix}1 & 0 \\ 0 & \sigma \end{bmatrix}$$
+To standardize the coefficients we recenter, then rescale.  In one step this is
+$$Z = S \times C =\begin{bmatrix}1 & \mu \\ 0 & \sigma \end{bmatrix}$$
+To fully standardize this model, the final step is to standardize $y$,
+$y_z=(y-\mu_y)/\sigma_y$.  This requires adjusting $b_0$ by $\mu_y$, which in
+this simple case leaves $b_0=0$, and dividing $\beta_z/\sigma_y$.  More complicated
+models also require these two final operations for full standardization.  It will
+simplify further discussion to drop consideration of this.
 
-### Simple Recentering Example
-It is worth noting that "recentering" may be done with any arbitrary constant, although
-it is perhaps most often done with a sample mean.
+### One Variable Recentering Example
+It is worth noting that "recentering" and "rescaling" may be done with any 
+arbitrary constants, although
+it is perhaps most often done with a sample mean.  However, this same approach
+would hold for converting a model where $x$ is expressed in degrees Fahrenheit
+to one expressed in degrees Centrigrade.
+
 ```{r ex1-init}
 example <- lm(mpg ~ wt, data=mtcars)
 ```
@@ -90,7 +124,7 @@ of the variance-covariance matrix.
 Now consider a model with two continuous independent variables and an interaction term,
 so the columns of $X$ are $\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}$.  We
 compose the coefficient change of basis from the two simple transformations as a direct
-product.  Denote
+product [reference:  Haberman?].  Denote
 $$C_1=\begin{bmatrix}1 & \mu_1 \\ 0 & 1 \end{bmatrix}$$
 $$C_2=\begin{bmatrix}1 & \mu_2 \\ 0 & 1 \end{bmatrix}$$
 Then
@@ -100,10 +134,11 @@ $$C = C_2 \otimes C_1 = \begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
 While this is simple to produce in theory, in practice attention must be
 given to the column ordering:  to use $C$ we must recognize that the
 column space is ordered $\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}$,
-so the ordering of the coeffient vector and the variance-covariance matrix must
-match this (perhaps through permutation).
+so the order must match that of the coefficient vector and the 
+variance-covariance matrix (perhaps through permutation).
 
-In order build a recentering matrix, then, we need to collect a labelled vector of
+### Two Variable Recentering Example
+In order to build a recentering matrix, then, we need to collect a labelled vector of
 recentering constants, and an ordered vector of coefficient terms.
 
 ```{r ex2-init}
@@ -113,7 +148,7 @@ ex2 <- lm(mpg ~ wt*disp, data=mtcars)        # the base model
 x.means <- colMeans(mtcars[,c("wt","disp")]) # recentering constants (means)
 b.terms <- names(coef(ex2))                  # coefficients/terms
 
-C <- matrix.build.clean(x.means, b.terms)
+C <- recentering.matrix(x.means, b.terms)
 C
 ```
 
@@ -127,6 +162,14 @@ C %*% vcov(ex2) %*% C
 ```
 
 ## Interaction Terms and Outer Products
+
+Why Kronecker?
+
+- From data space to model (parameter) space:  an outer product of the 
+column space of the data.
+- Transformations of the parameter space use an outer product for both
+the row space and column space.
+
 The data are modeled in an outer product of the column space.  In transforming the
 coefficients, we need the same same vector space for both columns and rows - the 
 Kronecker operator provides this very neatly.
@@ -134,5 +177,60 @@ Kronecker operator provides this very neatly.
 ## Less-Than Full Factorial Models
 An outer product with terms zeroed out.
 
+In practice, many models with interaction or polynomial terms are not full factorial
+models.  To derive the correct recentering and rescaling matrices means realizing
+that some of the elements of $\beta$ are $0$.
+
+Consider again the additive model
+$$y = \beta_0 + \beta_1x_1 + \beta_2x_2$$
+
+The recentering matrix for $x_1$ and $x_2$ is as given above, however we have
+$$\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
+  0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_2 \\ 0 \end{bmatrix}$$
+This simplifies to
+$$\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c  \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2 \\
+  0 &1 &0 \\ 0 &0 &1 \\ 0 &0 &0 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_2 \end{bmatrix}$$
+Not surprisingly, this leaves $\beta_3^c=0$, and we can further simplify
+$$\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2 \\
+  0 &1 &0 \\ 0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_2 \end{bmatrix}$$
+In other words, we end up with the only tranformation being to $\beta_0$, which 
+had to be the result for a recentered additive model.  Following this approach,
+we can derive our classic standardization formula for additive models as well.
+
+Another point worth considering is the effect of recentering variables on a model
+where a lower-order term has been dropped beneath a higher-order term.  Consider
+the model
+$$y = \beta_0 + \beta_1x_1 + \beta_3x_1x_2$$
+where the term $\beta_2x_2$ has been dropped, setting $\beta_2=0$.
+
+Here, our coefficient transformation looks like
+$$\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
+  0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ 0 \\ \beta_3 \end{bmatrix}$$
+We can simplify this somewhat as
+$$\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2\mu_1 \\
+  0 &1 &\mu_2 \\ 0 &0 &\mu_1 \\ 0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_3 \end{bmatrix}$$
+But here we see that our recentered model gains a term and a coefficient, $\beta_2^c (=\mu_1\beta_3)$!
+
+The highest order term in which a variable appears is always unchanged by recentering;
+lower order terms change when any of the *other* variables in a higher order term
+which includes the variables in the lower order term are recentered.  
+Going back to the additive model, consisting of only first-order
+(slope) and zero-order (intercept) terms, we see that only the intercept changes
+when the first order $x_i$ are recentered.
+
 ## Polynomial Terms
 An outer product with terms collected
+
+## Categorical terms
+Variables neither recentered nor rescaled produce a direct sum/block diagonal
+structure.
