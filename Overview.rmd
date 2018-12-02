@@ -1,5 +1,5 @@
 ---
-title: "Direct Coefficient Transformations"
+title: "Direct Coefficient Recentering and Rescaling Transformations"
 author: "Doug Hemken"
 date: "`r Sys.Date()`"
 output:
@@ -7,6 +7,7 @@ output:
     keep_tex: TRUE
     highlight: NULL
     toc: TRUE
+    toc_depth: 3
   html_document: 
     highlight: NULL
     toc: TRUE
@@ -14,6 +15,7 @@ output:
 
 ```{r knitrsetup, echo=FALSE, results="hide"}
 knitr::opts_chunk$set(comment=NA)
+options(digits=3)
 ```
 
 ## Introduction
@@ -49,7 +51,7 @@ standard practice where the
 coefficients are to be interpretable is to recalculate the data, then refit the model.  
 
 Available
-software does calculates standardized coefficients directly using the classic
+software calculates standardized coefficients directly using the classic
 approach, perhaps as a legacy of the sweep operations of the 1970s. 
 Refitting the model to recalculated data has the advantage
 that software also produces a variance-covariance matrix appropriate to the
@@ -119,7 +121,7 @@ norm(C%*%vcov(example)%*%t(C)-vcov(check), "F")
 
 A change of basis for the column space of $X$ induces a change of basis for the column
 space of the coefficient vector, and a change of basis for the row and column space
-of the variance-covariance matrix.
+of the variance-covariance matrix.  $C$, $S$, and $Z$ are change of basis transformations.
 
 ## Recentering Two Continuous Variables
 Now consider a model with two continuous independent variables and an interaction term,
@@ -162,6 +164,44 @@ C %*% coef(ex2)
 C %*% vcov(ex2) %*% C
 ```
 
+## Rescaling Two Continuous Variables
+
+Rescaling is just as easy.  Here,
+$$S_1=\begin{bmatrix}1 &0 \\ 0 &\sigma_1 \end{bmatrix}$$
+$$S_2=\begin{bmatrix}1 &0 \\ 0 &\sigma_2 \end{bmatrix}$$
+Then
+$$S = S_2 \otimes S_1 = \begin{bmatrix} 1 &0 &0 &0 \\
+  0 &\sigma_1 &0 &0 \\ 0 &0 &\sigma_2 &0 \\ 0 &0 &0 &\sigma_2\sigma_1 \end{bmatrix}$$
+  
+This can be useful independent of recentering, for example, to rescale from United States
+customary units to SI units where the zero of each scale remains unchanged.
+
+```{r ex3-scale}
+# pounds to kilograms, and cubic inches to liters
+x.scales <- c(1/453.592, 61.024)
+names(x.scales) <- c("wt", "disp")
+  
+S <- recentering.matrix(x.scales, b.terms, type="scale")
+S
+```
+
+Check coefficients:
+```{r ex3-check1}
+wtkg  <- mtcars$wt*453.592  # 1000 lbs to kg
+displ <- mtcars$disp/61.024 # cu.in. to liters
+
+ex3 <- lm(mpg~wtkg*displ, data=mtcars)
+
+ex3coefs <- cbind(S %*% coef(ex2),coef(ex3))
+colnames(ex3coefs) <- c("Direct","Data Trans.")
+ex3coefs
+```
+
+Compare vcov:
+```{r ex3-check2}
+norm(S %*% vcov(ex2) %*% S-vcov(ex3), "F")
+```
+
 ## Interaction Terms and Outer Products
 
 Why Kronecker?
@@ -181,6 +221,8 @@ An outer product with terms zeroed out.
 In practice, many models with interaction or polynomial terms are not full factorial
 models.  To derive the correct recentering and rescaling matrices means realizing
 that some of the elements of $\beta$ are $0$.
+
+### Dropping Higher Order Terms
 
 Consider again the additive model
 $$y = \beta_0 + \beta_1x_1 + \beta_2x_2$$
@@ -204,6 +246,7 @@ In other words, we end up with the only tranformation being to $\beta_0$, which
 had to be the result for a recentered additive model.  Following this approach,
 we can derive our classic standardization formula for additive models as well.
 
+### Dropping Lower Order Terms
 Another point worth considering is the effect of recentering variables on a model
 where a lower-order term has been dropped beneath a higher-order term.  Consider
 the model
@@ -229,10 +272,25 @@ Going back to the additive model, consisting of only first-order
 (slope) and zero-order (intercept) terms, we see that only the intercept changes
 when the first order $x_i$ are recentered.
 
+If we build recentering and rescaling matrices variable by variable, we can use 
+less-than-full factorial combinations as building blocks.  That is to say, we could
+build a matrix for a full-factorial model and then drop columns for unused terms,
+or we could approach this piecemeal.
+
 [Checking for missing lower order terms in not currently implemented.  However, this
 should be easy to accomplish:  drop columns in a full factorial $C$ or $S$ not included
 in the coefficient vector (i.e. not among the terms), then check for rows that are
 zero vectors and drop (only) those.]
+
+### Untransformed Variables
+
+It may be that the analyst wishes to leave some variables untransformed.  One way
+to view this is that the recentering constant $\mu=0$ and the rescaling constant
+$\sigma=1$.  So the "transformation"" for this variable is just the identity matrix
+$$S=C=\begin{bmatrix}1 & 0 \\ 0 &1 \end{bmatrix}$$
+This leads to a simplification of the full factorial transformation matrix in terms
+of direct sums.  If we have $C_2=I_2$, then
+$$C_2 \otimes C_1 = \begin{bmatrix}C_1 &0 \\ 0 &C_1\end{bmatrix} = C_1 \oplus C_1 $$
 
 ## Polynomial Terms
 An outer product with terms collected.
@@ -267,5 +325,32 @@ when recentered, will have the lower order terms re-emerge, just as we saw with
 less-than-full factorial models with dropped lower order terms.
 
 ## Categorical terms
-Variables neither recentered nor rescaled produce a direct sum/block diagonal
-structure.
+In practice there are a number of approaches used for categorical variables, i.e. 
+collections of indicator/contrast variables.
+
+- Leaving the intercept terms in reference coding amounts to leaving the
+coefficients for indicators untransformed, as described previously.
+- Standardizing each term as a z-score amounts to treating each category in
+the same manner as continuous variables, as described previously.
+- Transforming to coding other than reference coding is again a recentering change of 
+basis.  Here, however, we need another simple transformation.
+
+For example, the general form of the grand-mean recentering matrix for a categorical
+variable with $k$ categories is
+$$
+\begin{bmatrix}
+1 &1/k     &\cdots &1/k \\
+0 &(k-1)/k &\cdots &1/k \\
+0 &-1/k    &\cdots &1/k \\
+\vdots &\vdots &\vdots &\vdots \\
+0 &-1/k    &\cdots &(k-1)/k
+\end{bmatrix}
+$$
+
+This is then used in the same way as previously discussed recentering transformations.
+(The first category remains the dropped column in this transformation.)
+
+```{r}
+C <- ref.to.gm(2)
+C
+```

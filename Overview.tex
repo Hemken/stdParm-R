@@ -1,0 +1,567 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Direct Coefficient Recentering and Rescaling Transformations},
+            pdfauthor={Doug Hemken},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Direct Coefficient Recentering and Rescaling Transformations}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Doug Hemken}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2018-12-02}
+
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\subsection{Introduction}\label{introduction}
+
+For analysts working with linear models, recentering and rescaling the
+variables under analysis is such a routine task it hardly garners
+attention. In fields where there are no natural, physical units of
+measurement - education and psychology, to name two - it is common
+practice to refer to standardized units of measure. It is not uncommon
+to see analysts fit and report the same model in both the original and
+standardized units of measurement.
+
+\subsection{The Problem: Higher Order
+Models}\label{the-problem-higher-order-models}
+
+For additive models - models with intercepts and slopes of single
+variables to polynomial degree one - the analyst can directly transform
+the coefficients in the model via a classic formula that appears in most
+textbooks. Consider, for example, the model
+\[y = \beta_0 + \beta_1x_1 + \beta_2x_2\] where \(x_1\) and \(x_2\) are
+continuous variables. If we transform the data so that all the variables
+are centered, the transformed coefficients for this model are given by
+given by \(\beta_0=0\) and \(\beta_i=\beta_i\) If we further transform
+the data so that all variables are standardized, the transformed
+coefficients for this model are given by \(\beta_0=0\) and
+\[\beta_i=\frac{\sigma_{x_i}}{\sigma_y}\beta_i\]
+
+However, once interaction terms and higher order polynomial terms appear
+in a model, the classic approach requires centering and rescaling higher
+order terms using means and standard deviations of the higher order data
+vectors, independent of the rescaling of lower order terms. This
+produces coefficients that are difficult to interpret, because they are
+on different scales. While this can be useful for some purposes, such as
+calculating predicted values and residuals, standard practice where the
+coefficients are to be interpretable is to recalculate the data, then
+refit the model.
+
+Available software calculates standardized coefficients directly using
+the classic approach, perhaps as a legacy of the sweep operations of the
+1970s. Refitting the model to recalculated data has the advantage that
+software also produces a variance-covariance matrix appropriate to the
+transformed coefficients, and sets up the software for post-estimation
+operations with the transformed model.
+
+It seems to be little appreciated that the coefficients for recentered
+and rescaled (including standardized) models can be easily calculated
+directly.
+
+\subsection{Direct Transformation}\label{direct-transformation}
+
+Transforming the coefficients and the variance-covariance matrix of a
+linear model with a single continous outcome and a single continuous
+predictor is straighforward. Consider the simple model
+\[y = b_0 + b_1x\] or in the usual matrix form \[Y=X\beta\]
+
+If we wish to recenter our model in terms of \(x_c=x-\mu_x\), an
+arbitrarily recentered \(x\), we can do so without calculating the
+\(x_c\). We use a linear transformation \(C\) to map the vector of
+coefficients \(\beta\) to a vector of centered coefficients,
+\(\beta_C\). \[\beta_C=C\beta\] where \(C\) takes the form {[}reference:
+Searle? Graybill?{]} \[C=\begin{bmatrix}1 & \mu \\ 0 & 1 \end{bmatrix}\]
+Rescaling in terms of \(x_z=\frac{x_c}{\sigma}\) can be done directly
+with the linear transformation
+\[S=\begin{bmatrix}1 & 0 \\ 0 & \sigma \end{bmatrix}\] To standardize
+the coefficients we recenter, then rescale. In one step this is
+\[Z = S \times C =\begin{bmatrix}1 & \mu \\ 0 & \sigma \end{bmatrix}\]
+To fully standardize this model, the final step is to standardize \(y\),
+\(y_z=(y-\mu_y)/\sigma_y\). This requires adjusting \(b_0\) by
+\(\mu_y\), which in this simple case leaves \(b_0=0\), and dividing
+\(\beta_z/\sigma_y\). More complicated models also require these two
+final operations for full standardization. It will simplify further
+discussion to drop consideration of this.
+
+\subsubsection{One Variable Recentering
+Example}\label{one-variable-recentering-example}
+
+It is worth noting that ``recentering'' and ``rescaling'' may be done
+with any arbitrary constants, although it is perhaps most often done
+with a sample mean. However, this same approach would hold for
+converting a model where \(x\) is expressed in degrees Fahrenheit to one
+expressed in degrees Centrigrade.
+
+\begin{verbatim}
+example <- lm(mpg ~ wt, data=mtcars)
+\end{verbatim}
+
+Here the coefficients are recentered \emph{as if} the \(x\) variable
+\texttt{wt} were recentered to the sample mean.
+
+\begin{verbatim}
+C <- matrix(c(1,0,mean(mtcars$wt),1), ncol=2)
+C%*%coef(example)
+\end{verbatim}
+
+\begin{verbatim}
+      [,1]
+[1,] 20.09
+[2,] -5.34
+\end{verbatim}
+
+We can check that this agrees with recentering the data, then refitting
+the model.
+
+\begin{verbatim}
+wtcentered <- mtcars$wt - mean(mtcars$wt)
+check <- lm(mpg ~ wtcentered, data=mtcars)
+coef(check)
+\end{verbatim}
+
+\begin{verbatim}
+(Intercept)  wtcentered 
+      20.09       -5.34 
+\end{verbatim}
+
+We can also use the same recentering matrix to transform the
+variance-covariance matrix of the coefficients.
+
+\begin{verbatim}
+C%*%vcov(example)%*%t(C)
+\end{verbatim}
+
+\begin{verbatim}
+     [,1]  [,2]
+[1,] 0.29 0.000
+[2,] 0.00 0.313
+\end{verbatim}
+
+\begin{verbatim}
+vcov(check)
+\end{verbatim}
+
+\begin{verbatim}
+            (Intercept) wtcentered
+(Intercept)        0.29      0.000
+wtcentered         0.00      0.313
+\end{verbatim}
+
+\begin{verbatim}
+# check equality
+norm(C%*%vcov(example)%*%t(C)-vcov(check), "F")
+\end{verbatim}
+
+\begin{verbatim}
+[1] 4.48e-16
+\end{verbatim}
+
+A change of basis for the column space of \(X\) induces a change of
+basis for the column space of the coefficient vector, and a change of
+basis for the row and column space of the variance-covariance matrix.
+\(C\), \(S\), and \(Z\) are change of basis transformations.
+
+\subsection{Recentering Two Continuous
+Variables}\label{recentering-two-continuous-variables}
+
+Now consider a model with two continuous independent variables and an
+interaction term, so the columns of \(X\) are
+\(\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}\). We compose the
+coefficient change of basis from the two simple transformations as a
+direct product {[}reference: Haberman?{]}. Denote
+\[C_1=\begin{bmatrix}1 & \mu_1 \\ 0 & 1 \end{bmatrix}\]
+\[C_2=\begin{bmatrix}1 & \mu_2 \\ 0 & 1 \end{bmatrix}\] Then
+\[C = C_2 \otimes C_1 = \begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
+  0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}\]
+
+While this is simple to produce in theory, in practice attention must be
+given to the column ordering: to use \(C\) we must recognize that the
+column space is ordered
+\(\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}\), so the order
+must match that of the coefficient vector and the variance-covariance
+matrix (perhaps through permutation).
+
+\subsubsection{Two Variable Recentering
+Example}\label{two-variable-recentering-example}
+
+In order to build a recentering matrix, then, we need to collect a
+labelled vector of recentering constants, and an ordered vector of
+coefficient terms.
+
+\begin{verbatim}
+source("stdParm functions.r")
+
+ex2 <- lm(mpg ~ wt*disp, data=mtcars)        # the base model
+x.means <- colMeans(mtcars[,c("wt","disp")]) # recentering constants (means)
+b.terms <- names(coef(ex2))                  # coefficients/terms
+
+C <- recentering.matrix(x.means, b.terms)
+C
+\end{verbatim}
+
+\begin{verbatim}
+            (Intercept)   wt disp wt:disp
+(Intercept)           1 3.22  231  742.29
+wt                    0 1.00    0  230.72
+disp                  0 0.00    1    3.22
+wt:disp               0 0.00    0    1.00
+\end{verbatim}
+
+This, then, is what we use to produce recentered coefficients, and the
+accompanying variance-covariance matrix.
+
+\begin{verbatim}
+C %*% coef(ex2)
+\end{verbatim}
+
+\begin{verbatim}
+               [,1]
+(Intercept) 18.8695
+wt          -3.7950
+disp        -0.0187
+wt:disp      0.0117
+\end{verbatim}
+
+\begin{verbatim}
+C %*% vcov(ex2) %*% C
+\end{verbatim}
+
+\begin{verbatim}
+            (Intercept)      wt    disp  wt:disp
+(Intercept)    -0.67299 -1.8682 -155.27  -431.03
+wt             -1.84937 -4.8817 -426.70 -1126.34
+disp            0.00716  0.0165    1.65     3.82
+wt:disp         0.00826  0.0237    1.90     5.47
+\end{verbatim}
+
+\subsection{Rescaling Two Continuous
+Variables}\label{rescaling-two-continuous-variables}
+
+Rescaling is just as easy. Here,
+\[S_1=\begin{bmatrix}1 &0 \\ 0 &\sigma_1 \end{bmatrix}\]
+\[S_2=\begin{bmatrix}1 &0 \\ 0 &\sigma_2 \end{bmatrix}\] Then
+\[S = S_2 \otimes S_1 = \begin{bmatrix} 1 &0 &0 &0 \\
+  0 &\sigma_1 &0 &0 \\ 0 &0 &\sigma_2 &0 \\ 0 &0 &0 &\sigma_2\sigma_1 \end{bmatrix}\]
+
+This can be useful independent of recentering, for example, to rescale
+from United States customary units to SI units where the zero of each
+scale remains unchanged.
+
+\begin{verbatim}
+# pounds to kilograms, and cubic inches to liters
+x.scales <- c(1/453.592, 61.024)
+names(x.scales) <- c("wt", "disp")
+  
+S <- recentering.matrix(x.scales, b.terms, type="scale")
+S
+\end{verbatim}
+
+\begin{verbatim}
+            (Intercept)     wt disp wt:disp
+(Intercept)           1 0.0000    0   0.000
+wt                    0 0.0022    0   0.000
+disp                  0 0.0000   61   0.000
+wt:disp               0 0.0000    0   0.135
+\end{verbatim}
+
+Check coefficients:
+
+\begin{verbatim}
+wtkg  <- mtcars$wt*453.592  # 1000 lbs to kg
+displ <- mtcars$disp/61.024 # cu.in. to liters
+
+ex3 <- lm(mpg~wtkg*displ, data=mtcars)
+
+ex3coefs <- cbind(S %*% coef(ex2),coef(ex3))
+colnames(ex3coefs) <- c("Direct","Data Trans.")
+ex3coefs
+\end{verbatim}
+
+\begin{verbatim}
+              Direct Data Trans.
+(Intercept) 44.08200    44.08200
+wt          -0.01432    -0.01432
+disp        -3.43920    -3.43920
+wt:disp      0.00157     0.00157
+\end{verbatim}
+
+Compare vcov:
+
+\begin{verbatim}
+norm(S %*% vcov(ex2) %*% S-vcov(ex3), "F")
+\end{verbatim}
+
+\begin{verbatim}
+[1] 7.26e-15
+\end{verbatim}
+
+\subsection{Interaction Terms and Outer
+Products}\label{interaction-terms-and-outer-products}
+
+Why Kronecker?
+
+\begin{itemize}
+\tightlist
+\item
+  From data space to model (parameter) space: an outer product of the
+  column space of the data.
+\item
+  Transformations of the parameter space use an outer product for both
+  the row space and column space.
+\end{itemize}
+
+The data are modeled in an outer product of the column space. In
+transforming the coefficients, we need the same same vector space for
+both columns and rows - the Kronecker operator provides this very
+neatly.
+
+\subsection{Less-Than Full Factorial
+Models}\label{less-than-full-factorial-models}
+
+An outer product with terms zeroed out.
+
+In practice, many models with interaction or polynomial terms are not
+full factorial models. To derive the correct recentering and rescaling
+matrices means realizing that some of the elements of \(\beta\) are
+\(0\).
+
+\subsubsection{Dropping Higher Order
+Terms}\label{dropping-higher-order-terms}
+
+Consider again the additive model
+\[y = \beta_0 + \beta_1x_1 + \beta_2x_2\]
+
+The recentering matrix for \(x_1\) and \(x_2\) is as given above,
+however we have
+\[\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
+  0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_2 \\ 0 \end{bmatrix}\] This
+simplifies to
+\[\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c  \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2 \\
+  0 &1 &0 \\ 0 &0 &1 \\ 0 &0 &0 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_2 \end{bmatrix}\] Not
+surprisingly, this leaves \(\beta_3^c=0\), and we can further simplify
+\[\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2 \\
+  0 &1 &0 \\ 0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_2 \end{bmatrix}\] In other
+words, we end up with the only tranformation being to \(\beta_0\), which
+had to be the result for a recentered additive model. Following this
+approach, we can derive our classic standardization formula for additive
+models as well.
+
+\subsubsection{Dropping Lower Order
+Terms}\label{dropping-lower-order-terms}
+
+Another point worth considering is the effect of recentering variables
+on a model where a lower-order term has been dropped beneath a
+higher-order term. Consider the model
+\[y = \beta_0 + \beta_1x_1 + \beta_3x_1x_2\] where the term
+\(\beta_2x_2\) has been dropped, setting \(\beta_2=0\).
+
+Here, our coefficient transformation looks like
+\[\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
+  0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ 0 \\ \beta_3 \end{bmatrix}\] We can
+simplify this somewhat as
+\[\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu_1 &\mu_2\mu_1 \\
+  0 &1 &\mu_2 \\ 0 &0 &\mu_1 \\ 0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_3 \end{bmatrix}\] But here we
+see that our recentered model gains a term and a coefficient,
+\(\beta_2^c (=\mu_1\beta_3)\)!
+
+The highest order term in which a variable appears is always unchanged
+by recentering; lower order terms change when any of the \emph{other}
+variables in a higher order term which includes the variables in the
+lower order term are recentered. Going back to the additive model,
+consisting of only first-order (slope) and zero-order (intercept) terms,
+we see that only the intercept changes when the first order \(x_i\) are
+recentered.
+
+If we build recentering and rescaling matrices variable by variable, we
+can use less-than-full factorial combinations as building blocks. That
+is to say, we could build a matrix for a full-factorial model and then
+drop columns for unused terms, or we could approach this piecemeal.
+
+{[}Checking for missing lower order terms in not currently implemented.
+However, this should be easy to accomplish: drop columns in a full
+factorial \(C\) or \(S\) not included in the coefficient vector
+(i.e.~not among the terms), then check for rows that are zero vectors
+and drop (only) those.{]}
+
+\subsubsection{Untransformed Variables}\label{untransformed-variables}
+
+It may be that the analyst wishes to leave some variables untransformed.
+One way to view this is that the recentering constant \(\mu=0\) and the
+rescaling constant \(\sigma=1\). So the ``transformation''" for this
+variable is just the identity matrix
+\[S=C=\begin{bmatrix}1 & 0 \\ 0 &1 \end{bmatrix}\] This leads to a
+simplification of the full factorial transformation matrix in terms of
+direct sums. If we have \(C_2=I_2\), then
+\[C_2 \otimes C_1 = \begin{bmatrix}C_1 &0 \\ 0 &C_1\end{bmatrix} = C_1 \oplus C_1 \]
+
+\subsection{Polynomial Terms}\label{polynomial-terms}
+
+An outer product with terms collected.
+
+Like less-than-full factorial models, models with polynomial terms are
+worth a little extra scrutiny. Consider the model
+\[y = \beta_0 + \beta_1x + \beta_3x^2\] If we rewrite this as
+\[y = \beta_0 + \beta_1x + \beta_2x +\beta_3xx\] it looks like a
+factorial model. But all the effect of \(x\) is collected in a single
+term, \(\beta_1\), so \(\beta_2=0\). This is perhaps easier to see if we
+look at the recentering transformation
+\[\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu &\mu &\mu\mu \\
+  0 &1 &0 &\mu \\ 0 &0 &1 &\mu \\ 0 &0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_2 \\ \beta_3  \end{bmatrix}\]
+If we take \(\beta_2=0\), then we can simplify as before
+\[\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_2^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu &\mu\mu \\
+  0 &1 &\mu \\ 0 &0 &\mu \\ 0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_3  \end{bmatrix}\] But now
+\(\beta_1^c\) and \(\beta_1^c\) both have part of the effect of a
+recentered \(x_1\). If we collect these terms we end up with
+\[\begin{bmatrix}\beta_0^c \\ \beta_1^c \\ \beta_3^c \end{bmatrix}=
+\begin{bmatrix} 1 & \mu &\mu\mu \\
+  0 &1 &2\mu \\ 0 &0 &1 \end{bmatrix}
+\begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_3  \end{bmatrix}\] Models
+that include terms to any polynomial degree can be handled in this
+manner.
+
+Polynomial models where higher degree terms are included while dropping
+lower degree terms, when recentered, will have the lower order terms
+re-emerge, just as we saw with less-than-full factorial models with
+dropped lower order terms.
+
+\subsection{Categorical terms}\label{categorical-terms}
+
+In practice there are a number of approaches used for categorical
+variables, i.e. collections of indicator/contrast variables.
+
+\begin{itemize}
+\tightlist
+\item
+  Leaving the intercept terms in reference coding amounts to leaving the
+  coefficients for indicators untransformed, as described previously.
+\item
+  Standardizing each term as a z-score amounts to treating each category
+  in the same manner as continuous variables, as described previously.
+\item
+  Transforming to coding other than reference coding is again a
+  recentering change of basis. Here, however, we need another simple
+  transformation.
+\end{itemize}
+
+For example, the general form of the grand-mean recentering matrix for a
+categorical variable with \(k\) categories is \[
+\begin{bmatrix}
+1 &1/k     &\cdots &1/k \\
+0 &(k-1)/k &\cdots &1/k \\
+0 &-1/k    &\cdots &1/k \\
+\vdots &\vdots &\vdots &\vdots \\
+0 &-1/k    &\cdots &(k-1)/k
+\end{bmatrix}
+\]
+
+This is then used in the same way as previously discussed recentering
+transformations. (The first category remains the dropped column in this
+transformation.)
+
+\begin{verbatim}
+C <- ref.to.gm(2)
+C
+\end{verbatim}
+
+\begin{verbatim}
+     [,1] [,2]
+[1,]    1  0.5
+[2,]    0  0.5
+\end{verbatim}
+
+
+\end{document}
