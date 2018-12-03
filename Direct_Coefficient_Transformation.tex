@@ -82,7 +82,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2018-12-02}
+    \date{2018-12-03}
 
 
 \begin{document}
@@ -108,13 +108,13 @@ Models}\label{the-problem-higher-order-models}
 For additive models - models with intercepts and slopes of single
 variables to polynomial degree one - the analyst can directly transform
 the coefficients in the model via a classic formula that appears in most
-textbooks. Consider, for example, the model
-\[y = \beta_0 + \beta_1x_1 + \beta_2x_2\] where \(x_1\) and \(x_2\) are
-continuous variables. If we transform the data so that all the variables
-are centered, the transformed coefficients for this model are given by
-given by \(\beta_0=0\) and \(\beta_i=\beta_i\) If we further transform
-the data so that all variables are standardized, the transformed
-coefficients for this model are given by \(\beta_0=0\) and
+textbooks. Consider, for example, the regression model
+\[y = \beta_0 + \beta_1x_1 + \beta_2x_2\] where \(x_1\), \(x_2\), and
+\(y\) are all continuous variables. If we transform the data so that all
+the variables are centered, the transformed coefficients for this model
+are given by given by \(\beta_0=0\) and \(\beta_i=\beta_i\) If we
+further transform the data so that all variables are standardized, the
+transformed coefficients for this model are given by \(\beta_0=0\) and
 \[\beta_i=\frac{\sigma_{x_i}}{\sigma_y}\beta_i\]
 
 However, once interaction terms and higher order polynomial terms appear
@@ -168,9 +168,9 @@ Example}\label{one-variable-recentering-example}
 
 It is worth noting that ``recentering'' and ``rescaling'' may be done
 with any arbitrary constants, although it is perhaps most often done
-with a sample mean. However, this same approach would hold for
-converting a model where \(x\) is expressed in degrees Fahrenheit to one
-expressed in degrees Centrigrade.
+with a sample mean and sample standard deviation. However, this same
+approach would hold for converting a model where \(x\) is expressed, for
+example, in degrees Fahrenheit to one expressed in degrees Centrigrade.
 
 \begin{verbatim}
 example <- lm(mpg ~ wt, data=mtcars)
@@ -259,7 +259,14 @@ given to the column ordering: to use \(C\) we must recognize that the
 column space is ordered
 \(\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}\), so the order
 must match that of the coefficient vector and the variance-covariance
-matrix (perhaps through permutation).
+matrix, perhaps through permutation.
+
+While in general \(C_1 \otimes C_2 \neq C_2 \otimes C_1\), for any such
+operation there exists a permutation, \(P\), such that
+\(C_1 \otimes C_2 = P^T(C_2 \otimes C_1)P\). As long as we include
+simple recentering and rescaling matrices for every variable used in our
+coefficient terms, up to a final permutation their order does not
+matter.
 
 \subsubsection{Two Variable Recentering
 Example}\label{two-variable-recentering-example}

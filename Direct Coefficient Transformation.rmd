@@ -31,9 +31,9 @@ the same model in both the original and standardized units of measurement.
 For additive models - models with intercepts and slopes of
 single variables to polynomial degree one - the analyst can directly transform the
 coefficients in the model via a classic formula that appears in most textbooks. 
-Consider, for example, the model
+Consider, for example, the regression model
 $$y = \beta_0 + \beta_1x_1 + \beta_2x_2$$
-where $x_1$ and $x_2$ are continuous variables.  If we transform the data so that
+where $x_1$, $x_2$, and $y$ are all continuous variables.  If we transform the data so that
 all the variables are centered, the transformed coefficients for this model are 
 given by given by $\beta_0=0$ and $\beta_i=\beta_i$
 If we further transform the data so that
@@ -89,8 +89,10 @@ simplify further discussion to drop consideration of this.
 ### One Variable Recentering Example
 It is worth noting that "recentering" and "rescaling" may be done with any 
 arbitrary constants, although
-it is perhaps most often done with a sample mean.  However, this same approach
-would hold for converting a model where $x$ is expressed in degrees Fahrenheit
+it is perhaps most often done with a sample mean and sample standard deviation.
+However, this same approach
+would hold for converting a model where $x$ is expressed, for example,
+in degrees Fahrenheit
 to one expressed in degrees Centrigrade.
 
 ```{r ex1-init}
@@ -138,7 +140,12 @@ While this is simple to produce in theory, in practice attention must be
 given to the column ordering:  to use $C$ we must recognize that the
 column space is ordered $\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}$,
 so the order must match that of the coefficient vector and the 
-variance-covariance matrix (perhaps through permutation).
+variance-covariance matrix, perhaps through permutation.
+
+While in general $C_1 \otimes C_2 \neq C_2 \otimes C_1$, for any such operation
+there exists a permutation, $P$, such that $C_1 \otimes C_2 = P^T(C_2 \otimes C_1)P$.
+As long as we include simple recentering and rescaling matrices for every variable
+used in our coefficient terms, up to a final permutation their order does not matter.
 
 ### Two Variable Recentering Example
 In order to build a recentering matrix, then, we need to collect a labelled vector of
@@ -332,16 +339,17 @@ collections of indicator/contrast variables.
 coefficients for indicators untransformed, as described previously.
 - Standardizing each term as a z-score amounts to treating each category in
 the same manner as continuous variables, as described previously.
-- Transforming to coding other than reference coding is again a recentering change of 
-basis.  Here, however, we need another simple transformation.
+- Transforming to coding other than reference coding is again a "recentering" change of 
+basis in that it changes where we find zero in the parameter space.  
+Here, however, we need another simple transformation.
 
 For example, the general form of the grand-mean recentering matrix for a categorical
 variable with $k$ categories is
 $$
 \begin{bmatrix}
 1 &1/k     &\cdots &1/k \\
-0 &(k-1)/k &\cdots &1/k \\
-0 &-1/k    &\cdots &1/k \\
+0 &(k-1)/k &\cdots &-1/k \\
+0 &-1/k    &\cdots &-1/k \\
 \vdots &\vdots &\vdots &\vdots \\
 0 &-1/k    &\cdots &(k-1)/k
 \end{bmatrix}
@@ -351,6 +359,34 @@ This is then used in the same way as previously discussed recentering transforma
 (The first category remains the dropped column in this transformation.)
 
 ```{r}
-C <- ref.to.gm(2)
+C1 <- ref.to.gm(3)
+rownames(C1) <- colnames(C1) <- c("(Intercept)", "cyl6", "cyl8")
+C1
+```
+
+Combined with our transformation matrix for a continuous variable
+```{r}
+wtmean <- mean(mtcars$wt)
+names(wtmean) <- "wt"
+C2 <- mean.to.matrix(wtmean)
+C <- kron(C2,C1)
 C
+```
+
+This converts an uncentered model with reference coding for the indicators
+to centered `wt` and grand-mean centered `cyl`.
+```{r}
+cylf <- as.factor(mtcars$cyl)
+excat <- lm(mpg ~ cylf*wt, data=mtcars)
+summary(excat)
+```
+
+
+```{r}
+C %*% coef(excat)
+```
+
+```{r}
+contrasts(cylf) <- contr.sum
+coef(lm(mpg~cylf*wtcentered, data=mtcars)) # note different dropped level
 ```

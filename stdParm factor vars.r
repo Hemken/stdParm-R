@@ -53,3 +53,18 @@ b.z
 
 library(stdBeta)
 stdBeta(fit)
+
+cylf <- as.factor(mtcars$cyl)
+excat <- lm(mpg ~ cylf, data=mtcars)
+summary(excat)
+
+#contrasts(cylf) <- contr.treatment #ref.to.gm(3)[,-1]
+contrasts(cylf) <- contr.sum #ref.to.gm(3)[,-1]
+excat2 <- lm(mpg ~ cylf, data=mtcars)
+#excat2 <- lm(mpg ~ wt*cylf, data=mtcars)
+summary(excat2) # dropped level is now 3, not 1
+
+#excat <- lm(mpg ~ wt*cylf, data=mtcars)
+C <- ref.to.gm(3)
+C %*% coef(excat) # note the dropped level is 1, not 3
+
