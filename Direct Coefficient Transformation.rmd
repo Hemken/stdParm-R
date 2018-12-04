@@ -7,10 +7,11 @@ output:
     keep_tex: TRUE
     highlight: NULL
     toc: TRUE
-    toc_depth: 3
+    toc_depth: 2
   html_document: 
     highlight: NULL
     toc: TRUE
+    toc_depth: 2
 ---
 
 ```{r knitrsetup, echo=FALSE, results="hide"}
