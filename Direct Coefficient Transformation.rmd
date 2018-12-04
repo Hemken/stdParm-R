@@ -35,20 +35,20 @@ Consider, for example, the regression model
 $$y = \beta_0 + \beta_1x_1 + \beta_2x_2$$
 where $x_1$, $x_2$, and $y$ are all continuous variables.  If we transform the data so that
 all the variables are centered, the transformed coefficients for this model are 
-given by $\beta_0=0$ and $\beta_i=\beta_i$.
+given by $\beta_0=0$ and $\beta_i=\beta_i$ for $i\ge 1$.
 If we further transform the data so that
 all variables are standardized, the transformed coefficients for this model are
 given by $\beta_0=0$ and
 $$\beta_i=\frac{\sigma_{x_i}}{\sigma_y}\beta_i$$
 
 However, once interaction terms and higher order polynomial terms appear in a
-model, the classic approach requires centering and rescaling higher order terms
+model, the classic formula requires centering and rescaling higher order terms
 using means and standard deviations of the higher order data vectors, independent
 of the rescaling of lower order terms.  This produces coefficients that are difficult
 to interpret because they are on different scales.  While this can be useful
 for some purposes, such as calculating predicted values and residuals,
 standard practice where the
-coefficients are to be interpretable is to recalculate the data, then refit the model.  
+coefficients are to be interpreted is to recalculate the data, then refit the model.  
 
 Available
 software calculates standardized coefficients directly using the classic
@@ -73,17 +73,17 @@ If we wish to recenter our model in terms of $x_\delta=x-\mu_x$, an arbitrarily 
 we can do so without calculating the $x_\delta$.
 We use a linear transformation
 $C$ to map the vector of coefficients $\beta$ to a vector of centered coefficients, $\beta_\delta$.
-$$\beta_\delta=C\beta$$
-where $C$ takes the form [reference:  Searle?  Graybill?]
+$$\beta^\delta=C\beta$$
+where $C$ takes the form
 $$C=\begin{bmatrix}1 & \mu \\ 0 & 1 \end{bmatrix}$$
 Rescaling in terms of $x_z=\frac{x_\delta}{\sigma}$ can be done directly with the
 linear transformation
 $$S=\begin{bmatrix}1 & 0 \\ 0 & \sigma \end{bmatrix}$$
-To standardize the coefficients we recenter, then rescale.  In one step this is
+To standardize the coefficients, we recenter, then rescale.  In one step this is
 $$Z = S \times C =\begin{bmatrix}1 & \mu \\ 0 & \sigma \end{bmatrix}$$
 To fully standardize this model, the final step is to standardize $y$,
-$y_z=(y-\mu_y)/\sigma_y$.  This requires adjusting $b_0$ by $\mu_y$, which in
-this simple case leaves $b_0=0$, and dividing $\beta_z/\sigma_y$.  More complicated
+$y_z=(y-\mu_y)/\sigma_y$.  This requires adjusting $\beta_0^z$ by $\mu_y$, which in
+this simple case leaves $\beta_0^z=0$, and dividing $\beta^z/\sigma_y$.  More complicated
 models also require these two final operations for full standardization.  It will
 simplify further discussion to drop consideration of this.
 
@@ -136,7 +136,8 @@ $$C_2=\begin{bmatrix}1 & \mu_2 \\ 0 & 1 \end{bmatrix}$$
 Then
 $$C = C_2 \otimes C_1 = \begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
   0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}$$
-  
+The classic standardization formula skips recentering in adjusting the coefficients.
+
 While this is simple to produce in theory, in practice attention must be
 given to the column ordering:  to use $C$ we must recognize that the
 column space is ordered $\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}$,
@@ -180,8 +181,10 @@ $$S_2=\begin{bmatrix}1 &0 \\ 0 &\sigma_2 \end{bmatrix}$$
 Then
 $$S = S_2 \otimes S_1 = \begin{bmatrix} 1 &0 &0 &0 \\
   0 &\sigma_1 &0 &0 \\ 0 &0 &\sigma_2 &0 \\ 0 &0 &0 &\sigma_2\sigma_1 \end{bmatrix}$$
-  
-This can be useful independent of recentering, for example, to rescale from United States
+While the classic standardization formula takes a similar diagonal form, the rescaling
+constants for higher order terms ($>1$) are different.
+
+Rescaling can be useful independent of recentering, for example, to rescale from United States
 customary units to SI units where the zero of each scale remains unchanged.
 
 ```{r ex3-scale}
@@ -193,7 +196,7 @@ S <- recentering.matrix(x.scales, b.terms, type="scale")
 S
 ```
 
-Check coefficients:
+Check the coefficients:
 ```{r ex3-check1}
 wtkg  <- mtcars$wt*453.592  # 1000 lbs to kg
 displ <- mtcars$disp/61.024 # cu.in. to liters
@@ -205,7 +208,7 @@ colnames(ex3coefs) <- c("Direct","Data Trans.")
 ex3coefs
 ```
 
-Compare vcov:
+Compare the variance-covariance matrices:
 ```{r ex3-check2}
 norm(S %*% vcov(ex2) %*% S-vcov(ex3), "F")
 ```
@@ -216,12 +219,12 @@ To understand the use of the direct product here, we need to consider the
 relationship between the *data* space and the *parameter* space of a model.
 In all of the models considered here, the column space of the parameters
 is a subset of 
-the outer product of the columns space of the vectors, plus a column for
+the outer product of the columns space of the data, including a column for
 the intercept term.
 
-The data are modeled in an outer product of the column space.  In transforming the
+The data are modeled in an outer product of the data column space.  In transforming the
 coefficients, we need the same vector space for both columns and rows - the 
-Kronecker operator provides this very neatly.
+Kronecker operator provides this twofold outer product very neatly.
 
 We may consider a model that includes only the mean of the response as a zero-order model,
 sometimes called an intercept-only model.
@@ -251,14 +254,14 @@ transformations that reflect changes in the data space are an outer product.  Tr
 from one basis for parameters to another uses this outer product for both its
 column space and row space.  Kronecker operations give us just this result.
 
-## Less-Than Full Factorial Models
+# Less-Than Full Factorial Models
 An outer product with terms zeroed out.
 
 In practice, many models with interaction or polynomial terms are not full factorial
 models.  To derive the correct recentering and rescaling matrices means realizing
 that some of the elements of $\beta$ are $0$.
 
-### Dropping Higher Order Terms
+## Dropping Higher Order Terms
 
 Consider again the additive model
 $$y = \beta_0 + \beta_1x_1 + \beta_2x_2$$
@@ -282,7 +285,7 @@ In other words, we end up with the only tranformation being to $\beta_0$, which
 had to be the result for a recentered additive model.  Following this approach,
 we can derive our classic standardization formula for additive models as well.
 
-### Dropping Lower Order Terms
+## Dropping Lower Order Terms
 Another point worth considering is the effect of recentering variables on a model
 where a lower-order term has been dropped beneath a higher-order term.  Consider
 the model
@@ -318,7 +321,7 @@ should be easy to accomplish:  drop columns in a full factorial $C$ or $S$ not i
 in the coefficient vector (i.e. not among the terms), then check for rows that are
 zero vectors and drop (only) those.]
 
-### Untransformed Variables
+## Untransformed Variables
 
 It may be that the analyst wishes to leave some variables untransformed.  One way
 to view this is that the recentering constant $\mu=0$ and the rescaling constant
@@ -328,7 +331,7 @@ This leads to a simplification of the full factorial transformation matrix in te
 of direct sums.  If we have $C_2=I_2$, then
 $$C_2 \otimes C_1 = \begin{bmatrix}C_1 &0 \\ 0 &C_1\end{bmatrix} = C_1 \oplus C_1 $$
 
-## Polynomial Terms
+# Polynomial Terms
 An outer product with terms collected.
 
 Like less-than-full factorial models, models with polynomial terms are worth a little
@@ -360,7 +363,7 @@ Polynomial models where higher degree terms are included while dropping lower de
 when recentered, will have the lower order terms re-emerge, just as we saw with
 less-than-full factorial models with dropped lower order terms.
 
-## Categorical terms
+# Categorical terms
 In practice there are a number of approaches used for categorical variables, i.e. 
 collections of indicator/contrast variables.
 

@@ -82,9 +82,9 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2018-12-03}
+    \date{2018-12-04}
 
-\linespread{1.5}
+
 \begin{document}
 \maketitle
 
@@ -92,8 +92,7 @@
 \setcounter{tocdepth}{3}
 \tableofcontents
 }
-\hypertarget{introduction}{%
-\section{Introduction}\label{introduction}}
+\section{Introduction}\label{introduction}
 
 For analysts working with linear models, recentering and rescaling the
 variables under analysis is such a routine task it hardly garners
@@ -103,9 +102,8 @@ practice to refer to standardized units of measure. It is not uncommon
 to see analysts fit and report the same model in both the original and
 standardized units of measurement.
 
-\hypertarget{the-problem-higher-order-models}{%
 \section{The Problem: Higher Order
-Models}\label{the-problem-higher-order-models}}
+Models}\label{the-problem-higher-order-models}
 
 For additive models - models with intercepts and slopes of single
 variables to polynomial degree one - the analyst can directly transform
@@ -114,19 +112,19 @@ textbooks. Consider, for example, the regression model
 \[y = \beta_0 + \beta_1x_1 + \beta_2x_2\] where \(x_1\), \(x_2\), and
 \(y\) are all continuous variables. If we transform the data so that all
 the variables are centered, the transformed coefficients for this model
-are given by \(\beta_0=0\) and \(\beta_i=\beta_i\). If we further
-transform the data so that all variables are standardized, the
+are given by \(\beta_0=0\) and \(\beta_i=\beta_i\) for \(i\ge 1\). If we
+further transform the data so that all variables are standardized, the
 transformed coefficients for this model are given by \(\beta_0=0\) and
 \[\beta_i=\frac{\sigma_{x_i}}{\sigma_y}\beta_i\]
 
 However, once interaction terms and higher order polynomial terms appear
-in a model, the classic approach requires centering and rescaling higher
+in a model, the classic formula requires centering and rescaling higher
 order terms using means and standard deviations of the higher order data
 vectors, independent of the rescaling of lower order terms. This
 produces coefficients that are difficult to interpret because they are
 on different scales. While this can be useful for some purposes, such as
 calculating predicted values and residuals, standard practice where the
-coefficients are to be interpretable is to recalculate the data, then
+coefficients are to be interpreted is to recalculate the data, then
 refit the model.
 
 Available software calculates standardized coefficients directly using
@@ -140,11 +138,9 @@ It seems to be little appreciated that the coefficients for recentered
 and rescaled (including standardized) models can be easily calculated
 directly.
 
-\hypertarget{direct-transformation}{%
-\section{Direct Transformation}\label{direct-transformation}}
+\section{Direct Transformation}\label{direct-transformation}
 
-\hypertarget{one-variable}{%
-\subsection{One Variable}\label{one-variable}}
+\subsection{One Variable}\label{one-variable}
 
 Transforming the coefficients and the variance-covariance matrix of a
 linear model with a single continous outcome and a single continuous
@@ -155,24 +151,22 @@ If we wish to recenter our model in terms of \(x_\delta=x-\mu_x\), an
 arbitrarily recentered \(x\), we can do so without calculating the
 \(x_\delta\). We use a linear transformation \(C\) to map the vector of
 coefficients \(\beta\) to a vector of centered coefficients,
-\(\beta_\delta\). \[\beta_\delta=C\beta\] where \(C\) takes the form
-{[}reference: Searle? Graybill?{]}
+\(\beta_\delta\). \[\beta^\delta=C\beta\] where \(C\) takes the form
 \[C=\begin{bmatrix}1 & \mu \\ 0 & 1 \end{bmatrix}\] Rescaling in terms
 of \(x_z=\frac{x_\delta}{\sigma}\) can be done directly with the linear
 transformation \[S=\begin{bmatrix}1 & 0 \\ 0 & \sigma \end{bmatrix}\] To
-standardize the coefficients we recenter, then rescale. In one step this
-is
+standardize the coefficients, we recenter, then rescale. In one step
+this is
 \[Z = S \times C =\begin{bmatrix}1 & \mu \\ 0 & \sigma \end{bmatrix}\]
 To fully standardize this model, the final step is to standardize \(y\),
-\(y_z=(y-\mu_y)/\sigma_y\). This requires adjusting \(b_0\) by
-\(\mu_y\), which in this simple case leaves \(b_0=0\), and dividing
-\(\beta_z/\sigma_y\). More complicated models also require these two
-final operations for full standardization. It will simplify further
-discussion to drop consideration of this.
+\(y_z=(y-\mu_y)/\sigma_y\). This requires adjusting \(\beta_0^z\) by
+\(\mu_y\), which in this simple case leaves \(\beta_0^z=0\), and
+dividing \(\beta^z/\sigma_y\). More complicated models also require
+these two final operations for full standardization. It will simplify
+further discussion to drop consideration of this.
 
-\hypertarget{example-one-variable-recentering}{%
 \subsubsection{Example: One Variable
-Recentering}\label{example-one-variable-recentering}}
+Recentering}\label{example-one-variable-recentering}
 
 It is worth noting that ``recentering'' and ``rescaling'' may be done
 with any arbitrary constants, although it is perhaps most often done
@@ -249,8 +243,7 @@ basis for the column space of the coefficient vector, and a change of
 basis for the row and column space of the variance-covariance matrix.
 \(C\), \(S\), and \(Z\) are change of basis transformations.
 
-\hypertarget{two-variables}{%
-\subsection{Two Variables}\label{two-variables}}
+\subsection{Two Variables}\label{two-variables}
 
 Now consider a model with two continuous independent variables and an
 interaction term, so the columns of \(X\) are
@@ -260,7 +253,9 @@ direct product {[}reference: Haberman?{]}. Denote
 \[C_1=\begin{bmatrix}1 & \mu_1 \\ 0 & 1 \end{bmatrix}\]
 \[C_2=\begin{bmatrix}1 & \mu_2 \\ 0 & 1 \end{bmatrix}\] Then
 \[C = C_2 \otimes C_1 = \begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
-  0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}\]
+  0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}\] The
+classic standardization formula skips recentering in adjusting the
+coefficients.
 
 While this is simple to produce in theory, in practice attention must be
 given to the column ordering: to use \(C\) we must recognize that the
@@ -276,9 +271,8 @@ simple recentering and rescaling matrices for every variable used in our
 coefficient terms, up to a final permutation their order does not
 matter.
 
-\hypertarget{example-two-variable-recentering}{%
 \subsubsection{Example: Two Variable
-Recentering}\label{example-two-variable-recentering}}
+Recentering}\label{example-two-variable-recentering}
 
 In order to build a recentering matrix, then, we need to collect a
 labelled vector of recentering constants, and an ordered vector of
@@ -330,19 +324,20 @@ disp            0.00716  0.0165    1.65     3.82
 wt:disp         0.00826  0.0237    1.90     5.47
 \end{verbatim}
 
-\hypertarget{example-two-variable-rescaling}{%
 \subsection{Example: Two Variable
-Rescaling}\label{example-two-variable-rescaling}}
+Rescaling}\label{example-two-variable-rescaling}
 
 Rescaling is just as easy. Here,
 \[S_1=\begin{bmatrix}1 &0 \\ 0 &\sigma_1 \end{bmatrix}\]
 \[S_2=\begin{bmatrix}1 &0 \\ 0 &\sigma_2 \end{bmatrix}\] Then
 \[S = S_2 \otimes S_1 = \begin{bmatrix} 1 &0 &0 &0 \\
   0 &\sigma_1 &0 &0 \\ 0 &0 &\sigma_2 &0 \\ 0 &0 &0 &\sigma_2\sigma_1 \end{bmatrix}\]
+While the classic standardization formula takes a similar diagonal form,
+the rescaling constants for higher order terms (\(>1\)) are different.
 
-This can be useful independent of recentering, for example, to rescale
-from United States customary units to SI units where the zero of each
-scale remains unchanged.
+Rescaling can be useful independent of recentering, for example, to
+rescale from United States customary units to SI units where the zero of
+each scale remains unchanged.
 
 \begin{verbatim}
 # pounds to kilograms, and cubic inches to liters
@@ -361,7 +356,7 @@ disp                  0 0.0000   61   0.000
 wt:disp               0 0.0000    0   0.135
 \end{verbatim}
 
-Check coefficients:
+Check the coefficients:
 
 \begin{verbatim}
 wtkg  <- mtcars$wt*453.592  # 1000 lbs to kg
@@ -382,7 +377,7 @@ disp        -3.43920    -3.43920
 wt:disp      0.00157     0.00157
 \end{verbatim}
 
-Compare vcov:
+Compare the variance-covariance matrices:
 
 \begin{verbatim}
 norm(S %*% vcov(ex2) %*% S-vcov(ex3), "F")
@@ -392,19 +387,19 @@ norm(S %*% vcov(ex2) %*% S-vcov(ex3), "F")
 [1] 7.26e-15
 \end{verbatim}
 
-\hypertarget{interaction-terms-factorial-models-and-direct-products}{%
 \section{Interaction Terms, Factorial Models, and Direct
-Products}\label{interaction-terms-factorial-models-and-direct-products}}
+Products}\label{interaction-terms-factorial-models-and-direct-products}
 
 To understand the use of the direct product here, we need to consider
 the relationship between the \emph{data} space and the \emph{parameter}
 space of a model. In all of the models considered here, the column space
 of the parameters is a subset of the outer product of the columns space
-of the vectors, plus a column for the intercept term.
+of the data, including a column for the intercept term.
 
-The data are modeled in an outer product of the column space. In
+The data are modeled in an outer product of the data column space. In
 transforming the coefficients, we need the same vector space for both
-columns and rows - the Kronecker operator provides this very neatly.
+columns and rows - the Kronecker operator provides this twofold outer
+product very neatly.
 
 We may consider a model that includes only the mean of the response as a
 zero-order model, sometimes called an intercept-only model. A model with
@@ -438,9 +433,8 @@ space are an outer product. Transformations from one basis for
 parameters to another uses this outer product for both its column space
 and row space. Kronecker operations give us just this result.
 
-\hypertarget{less-than-full-factorial-models}{%
-\subsection{Less-Than Full Factorial
-Models}\label{less-than-full-factorial-models}}
+\section{Less-Than Full Factorial
+Models}\label{less-than-full-factorial-models}
 
 An outer product with terms zeroed out.
 
@@ -449,9 +443,8 @@ full factorial models. To derive the correct recentering and rescaling
 matrices means realizing that some of the elements of \(\beta\) are
 \(0\).
 
-\hypertarget{dropping-higher-order-terms}{%
-\subsubsection{Dropping Higher Order
-Terms}\label{dropping-higher-order-terms}}
+\subsection{Dropping Higher Order
+Terms}\label{dropping-higher-order-terms}
 
 Consider again the additive model
 \[y = \beta_0 + \beta_1x_1 + \beta_2x_2\]
@@ -478,9 +471,8 @@ had to be the result for a recentered additive model. Following this
 approach, we can derive our classic standardization formula for additive
 models as well.
 
-\hypertarget{dropping-lower-order-terms}{%
-\subsubsection{Dropping Lower Order
-Terms}\label{dropping-lower-order-terms}}
+\subsection{Dropping Lower Order
+Terms}\label{dropping-lower-order-terms}
 
 Another point worth considering is the effect of recentering variables
 on a model where a lower-order term has been dropped beneath a
@@ -520,8 +512,7 @@ factorial \(C\) or \(S\) not included in the coefficient vector
 (i.e.~not among the terms), then check for rows that are zero vectors
 and drop (only) those.{]}
 
-\hypertarget{untransformed-variables}{%
-\subsubsection{Untransformed Variables}\label{untransformed-variables}}
+\subsection{Untransformed Variables}\label{untransformed-variables}
 
 It may be that the analyst wishes to leave some variables untransformed.
 One way to view this is that the recentering constant \(\mu=0\) and the
@@ -532,8 +523,7 @@ simplification of the full factorial transformation matrix in terms of
 direct sums. If we have \(C_2=I_2\), then
 \[C_2 \otimes C_1 = \begin{bmatrix}C_1 &0 \\ 0 &C_1\end{bmatrix} = C_1 \oplus C_1 \]
 
-\hypertarget{polynomial-terms}{%
-\subsection{Polynomial Terms}\label{polynomial-terms}}
+\section{Polynomial Terms}\label{polynomial-terms}
 
 An outer product with terms collected.
 
@@ -567,8 +557,7 @@ lower degree terms, when recentered, will have the lower order terms
 re-emerge, just as we saw with less-than-full factorial models with
 dropped lower order terms.
 
-\hypertarget{categorical-terms}{%
-\subsection{Categorical terms}\label{categorical-terms}}
+\section{Categorical terms}\label{categorical-terms}
 
 In practice there are a number of approaches used for categorical
 variables, i.e. collections of indicator/contrast variables.
