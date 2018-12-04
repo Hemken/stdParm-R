@@ -89,9 +89,10 @@
 \maketitle
 
 {
-\setcounter{tocdepth}{2}
+\setcounter{tocdepth}{1}
 \tableofcontents
 }
+
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
@@ -102,6 +103,9 @@ measurement - education and psychology, to name two - it is common
 practice to refer to standardized units of measure. It is not uncommon
 to see analysts fit and report the same model in both the original and
 standardized units of measurement.
+
+This is a classic problem, with a classic solution widely implemented in
+statistical software, with well recognized limitations.
 
 \hypertarget{the-problem-higher-order-models}{%
 \section{The Problem: Higher Order
@@ -114,27 +118,42 @@ textbooks. Consider, for example, the regression model
 \[y = \beta_0 + \beta_1x_1 + \beta_2x_2\] where \(x_1\), \(x_2\), and
 \(y\) are all continuous variables. If we transform the data so that all
 the variables are centered, the transformed coefficients for this model
-are given by \(\beta_0=0\) and \(\beta_i=\beta_i\) for \(i\ge 1\). If we
-further transform the data so that all variables are standardized, the
-transformed coefficients for this model are given by \(\beta_0=0\) and
-\[\beta_i=\frac{\sigma_{x_i}}{\sigma_y}\beta_i\]
+are given by \(\beta_0^\delta=0\) and \(\beta_i^\delta=\beta_i\) for
+\(i\ge 1\). If we further transform the data so that all variables are
+standardized, the transformed coefficients for this model are given by
+\(\beta_0^z=0\) and \[\beta_i^z=\frac{\sigma_{x_i}}{\sigma_y}\beta_i\]
 
 However, once interaction terms and higher order polynomial terms appear
-in a model, the classic formula requires centering and rescaling higher
-order terms using means and standard deviations of the higher order data
-vectors, independent of the rescaling of lower order terms. This
-produces coefficients that are difficult to interpret because they are
-on different scales. While this can be useful for some purposes, such as
-calculating predicted values and residuals, standard practice where the
-coefficients are to be interpreted is to recalculate the data, then
-refit the model.
+in a model, using the classic formula requires recentering and rescaling
+higher order terms with the means and standard deviations of the higher
+order data vectors, the (Hadamard, element-wise) product of the lower
+order data vectors, independent of the rescaling of lower order terms.
 
-Available software calculates standardized coefficients directly using
-the classic approach, perhaps as a legacy of the sweep operations of the
-1970s. Refitting the model to recalculated data has the advantage that
-software also produces a variance-covariance matrix appropriate to the
+Consider, for example, the regression model
+\[y = \beta_0 + \beta_1x_1 + \beta_2x_2+ \beta_3x_1x_2\] The classic
+formula transforms \(\beta_0\), \(\beta_1\), and \(\beta_2\) as before.
+For \(\beta_3\) we use the standard deviation of the product term
+\(\sigma_{x_1x_2} (\neq \sigma_{x_1}\sigma_{x_2})\) as the numerator
+rescaling factor. This implies that \(x_1x_2\) would have been
+recentered with \(\mu_{x_1x_2}(\neq \mu_{x_1}\mu_{x_2})\), although we
+do not need to actually calculate this. These are \textbf{\emph{not}}
+the coefficients we would get if the data were first transformed, and
+the model re-estimated.
+
+This produces coefficients that are difficult to interpret because terms
+involving the very same variables are on different scales. While this
+can be useful for some purposes, such as calculating predicted values,
+residuals, and goodness of fit, standard practice where the coefficients
+are to be interpreted is to recalculate the data, then refit the model.
+Refitting the model to recalculated data has the advantage that software
+also produces a variance-covariance matrix appropriate to the
 transformed coefficients, and sets up the software for post-estimation
 operations with the transformed model.
+
+Available software (SAS, Stata, SPSS) calculates standardized
+coefficients directly using the classic approach, perhaps as a legacy of
+the sweep operations of the 1970s. R has at least 3 packages -
+QuantPsyc, lm.beta, and lsr - that implement this classic formula.
 
 It seems to be little appreciated that the coefficients for recentered
 and rescaled (including standardized) models can be easily calculated
@@ -155,9 +174,9 @@ If we wish to recenter our model in terms of \(x_\delta=x-\mu_x\), an
 arbitrarily recentered \(x\), we can do so without calculating the
 \(x_\delta\). We use a linear transformation \(C\) to map the vector of
 coefficients \(\beta\) to a vector of centered coefficients,
-\(\beta_\delta\). \[\beta^\delta=C\beta\] where \(C\) takes the form
+\(\beta^\delta\). \[\beta^\delta=C\beta\] where \(C\) takes the form
 \[C=\begin{bmatrix}1 & \mu \\ 0 & 1 \end{bmatrix}\] Rescaling in terms
-of \(x_z=\frac{x_\delta}{\sigma}\) can be done directly with the linear
+of \(x_z=x_\delta/\sigma\) can be done directly with the linear
 transformation \[S=\begin{bmatrix}1 & 0 \\ 0 & \sigma \end{bmatrix}\] To
 standardize the coefficients, we recenter, then rescale. In one step
 this is
@@ -169,21 +188,21 @@ dividing \(\beta^z/\sigma_y\). More complicated models also require
 these two final operations for full standardization. It will simplify
 further discussion to drop consideration of this.
 
-\hypertarget{example-one-variable-recentering}{%
-\subsubsection{Example: One Variable
-Recentering}\label{example-one-variable-recentering}}
-
 It is worth noting that ``recentering'' and ``rescaling'' may be done
 with any arbitrary constants, although it is perhaps most often done
 with a sample mean and sample standard deviation. However, this same
 approach would hold for converting a model where \(x\) is expressed, for
 example, in degrees Fahrenheit to one expressed in degrees Centrigrade.
 
+\hypertarget{example-one-variable-recentering}{%
+\subsubsection{Example: One Variable
+Recentering}\label{example-one-variable-recentering}}
+
 \begin{verbatim}
 example <- lm(mpg ~ wt, data=mtcars)
 \end{verbatim}
 
-Here the coefficients are recentered \emph{as if} the \(x\) variable
+Here the coefficients can be recentered as if the \(x\) variable
 \texttt{wt} were recentered to the sample mean.
 
 \begin{verbatim}
@@ -203,12 +222,13 @@ the model.
 \begin{verbatim}
 wtcentered <- mtcars$wt - mean(mtcars$wt)
 check <- lm(mpg ~ wtcentered, data=mtcars)
-coef(check)
+cbind(C%*%coef(example),coef(check))
 \end{verbatim}
 
 \begin{verbatim}
-(Intercept)  wtcentered 
-      20.09       -5.34 
+             [,1]  [,2]
+(Intercept) 20.09 20.09
+wtcentered  -5.34 -5.34
 \end{verbatim}
 
 We can also use the same recentering matrix to transform the
@@ -255,17 +275,18 @@ Now consider a model with two continuous independent variables and an
 interaction term, so the columns of \(X\) are
 \(\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}\). We compose the
 coefficient change of basis from the two simple transformations as a
-direct product {[}reference: Haberman?{]}. Denote
+direct product. Denote
 \[C_1=\begin{bmatrix}1 & \mu_1 \\ 0 & 1 \end{bmatrix}\]
 \[C_2=\begin{bmatrix}1 & \mu_2 \\ 0 & 1 \end{bmatrix}\] Then
 \[C = C_2 \otimes C_1 = \begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
   0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}\] The
-classic standardization formula skips recentering in adjusting the
-coefficients.
+classic standardization formula, as noted above, assumes recentering
+with different constants in adjusting the coefficients. Note here that
+recentering will always leave the highest order term unchanged.
 
-While this is simple to produce in theory, in practice attention must be
-given to the column ordering: to use \(C\) we must recognize that the
-column space is ordered
+While this transformation is simple to construct in theory, in practice
+attention must be given to the column ordering: to use \(C\) we must
+recognize that the column space is ordered
 \(\begin{bmatrix} 1_n &x_1 &x_2 &x_1x_2 \end{bmatrix}\), so the order
 must match that of the coefficient vector and the variance-covariance
 matrix, perhaps through permutation.
@@ -446,12 +467,14 @@ and row space. Kronecker operations give us just this result.
 \section{Less-Than Full Factorial
 Models}\label{less-than-full-factorial-models}}
 
-An outer product with terms zeroed out.
+A less-than-full factorial model can be though of as an outer product
+with some terms zeroed out.
 
 In practice, many models with interaction or polynomial terms are not
 full factorial models. To derive the correct recentering and rescaling
 matrices means realizing that some of the elements of \(\beta\) are
-\(0\).
+\(0\). Doing so allows us to work with reduced coefficient vectors and
+reduced transformation matrices.
 
 \hypertarget{dropping-higher-order-terms}{%
 \subsection{Dropping Higher Order
@@ -461,7 +484,7 @@ Consider again the additive model
 \[y = \beta_0 + \beta_1x_1 + \beta_2x_2\]
 
 The recentering matrix for \(x_1\) and \(x_2\) is as given above,
-however we have
+however for \(\beta\) we have
 \[\begin{bmatrix}\beta_0^\delta \\ \beta_1^\delta \\ \beta_2^\delta \\ \beta_3^\delta \end{bmatrix}=
 \begin{bmatrix} 1 & \mu_1 &\mu_2 &\mu_2\mu_1 \\
   0 &1 &0 &\mu_2 \\ 0 &0 &1 &\mu_1 \\ 0 &0 &0 &1 \end{bmatrix}
@@ -479,8 +502,8 @@ simplify
 \begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_2 \end{bmatrix}\] In other
 words, we end up with the only tranformation being to \(\beta_0\), which
 had to be the result for a recentered additive model. Following this
-approach, we can derive our classic standardization formula for additive
-models as well.
+approach for rescaling, we can derive in matrix form our classic
+standardization formula for additive models as well.
 
 \hypertarget{dropping-lower-order-terms}{%
 \subsection{Dropping Lower Order
@@ -488,9 +511,9 @@ Terms}\label{dropping-lower-order-terms}}
 
 Another point worth considering is the effect of recentering variables
 on a model where a lower-order term has been dropped beneath a
-higher-order term. Consider the model
-\[y = \beta_0 + \beta_1x_1 + \beta_3x_1x_2\] where the term
-\(\beta_2x_2\) has been dropped, setting \(\beta_2=0\).
+higher-order term, such as a no-intercept model or a nested terms model.
+Consider the model \[y = \beta_0 + \beta_1x_1 + \beta_3x_1x_2\] where
+the term \(\beta_2x_2\) has been dropped, setting \(\beta_2=0\).
 
 Here, our coefficient transformation looks like
 \[\begin{bmatrix}\beta_0^\delta \\ \beta_1^\delta \\ \beta_2^\delta \\ \beta_3^\delta \end{bmatrix}=
@@ -511,7 +534,8 @@ variables in a higher order term which includes the variables in the
 lower order term are recentered. Going back to the additive model,
 consisting of only first-order (slope) and zero-order (intercept) terms,
 we see that only the intercept changes when the first order \(x_i\) are
-recentered.
+recentered. Recentering a first-order model that had no intercept would
+transform the coefficients so that an intercept was included.
 
 If we build recentering and rescaling matrices variable by variable, we
 can use less-than-full factorial combinations as building blocks. That
@@ -539,7 +563,8 @@ direct sums. If we have \(C_2=I_2\), then
 \hypertarget{polynomial-terms}{%
 \section{Polynomial Terms}\label{polynomial-terms}}
 
-An outer product with terms collected.
+Polynomial models may also be built as outer products, but with lower
+order terms collected.
 
 Like less-than-full factorial models, models with polynomial terms are
 worth a little extra scrutiny. Consider the model
@@ -558,8 +583,9 @@ If we take \(\beta_2=0\), then we can simplify as before
   0 &1 &\mu \\ 0 &0 &\mu \\ 0 &0 &1 \end{bmatrix}
 \begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_3  \end{bmatrix}\] But now
 \(\beta_1^\delta\) and \(\beta_2^\delta\) both have part of the effect
-of a recentered \(x_1\). If we collect these terms we end up with
-\[\begin{bmatrix}\beta_0^\delta \\ \beta_1^\delta \\ \beta_3^\delta \end{bmatrix}=
+of a recentered \(x_1\). If we collect these terms in
+\(\beta^\delta_{12}=\beta_{1}^\delta+\beta_{2}^\delta\) we end up with
+\[\begin{bmatrix}\beta_0^\delta \\ \beta_{12}^\delta \\ \beta_3^\delta \end{bmatrix}=
 \begin{bmatrix} 1 & \mu &\mu\mu \\
   0 &1 &2\mu \\ 0 &0 &1 \end{bmatrix}
 \begin{bmatrix}\beta_0 \\ \beta_1 \\ \beta_3  \end{bmatrix}\] Models
@@ -570,6 +596,9 @@ Polynomial models where higher degree terms are included while dropping
 lower degree terms, when recentered, will have the lower order terms
 re-emerge, just as we saw with less-than-full factorial models with
 dropped lower order terms.
+
+Because rescaling transformation are diagonal matrices, the
+simplification for a polynomial rescaling just drops a column and a row/
 
 \hypertarget{categorical-terms}{%
 \section{Categorical terms}\label{categorical-terms}}
@@ -582,6 +611,8 @@ variables, i.e. collections of indicator/contrast variables.
 \item
   Leaving the intercept terms in reference coding amounts to leaving the
   coefficients for indicators untransformed, as described previously.
+  Where there are \(k\) categories, then, we may use an \(I_k\) identity
+  matrix, and do our computation are direct sums.
 \item
   Standardizing each term as a z-score is equivalent to treating each
   category in the same manner as continuous variables, as described
@@ -593,8 +624,9 @@ variables, i.e. collections of indicator/contrast variables.
   transformation.
 \end{itemize}
 
-For example, the general form of the grand-mean recentering matrix for a
-categorical variable with \(k\) categories is \[
+For example, the general form of the reference coding to grand-mean
+coding recentering matrix for a categorical variable with \(k\)
+categories is \[
 \begin{bmatrix}
 1 &1/k     &\cdots &1/k \\
 0 &(k-1)/k &\cdots &-1/k \\
@@ -700,6 +732,130 @@ coef(lm(mpg~cylf*wtcentered, data=mtcars)) # note different dropped level
 cylf1:wtcentered cylf2:wtcentered 
           -2.107            0.760 
 \end{verbatim}
+
+\hypertarget{implementation}{%
+\section{Implementation}\label{implementation}}
+
+The basic algorithm here, the Kronecker product, is as old as the hills
+and implemented in any software that handles matrix operations.
+Integrating the pieces into useful software requires a little more work.
+
+A useful implementation would take as input:
+
+\begin{itemize}
+\tightlist
+\item
+  a vector of recentering constants, labeled, one per variable in the
+  model
+\item
+  a vector of rescaling constants, labeled, one per variable
+\item
+  a vector of coefficient terms (the labels themselves), formed so that
+  constituent variables and polynomial degree can be extracted from each
+  term
+\end{itemize}
+
+As implemented so far (the \texttt{recentering.matrix()} R function in
+the two-variable examples above, (which calculates both recentering and
+rescaling matrices) this handles less-than-full factorial models.
+Missing from this implementation are:
+
+\begin{itemize}
+\tightlist
+\item
+  handling dropped lower order terms
+\item
+  handling polynomials
+\item
+  handling categorical contrast conversions
+\end{itemize}
+
+The algorithm for collecting like terms in a transformation matrix
+(\texttt{collect.terms()}), for a single variable taken to an arbitrary
+polynomial degree, is ready, but not yet integrated into the full
+construction algorithm.
+
+A useful computational simplification not yet fully implemented is:
+
+\begin{itemize}
+\tightlist
+\item
+  using direct sums for untransformed variables and collections of
+  categorical indicators, rather than direct products,
+  \texttt{factor.direct.sum()}.
+\end{itemize}
+
+Source code can be found at \url{https://github.com/Hemken/stdParm-R}
+
+\hypertarget{errors-in-predictions}{%
+\section{Errors in Predictions}\label{errors-in-predictions}}
+
+The main benefit of direct transformation is improved interpretability,
+and the general utility of the results for any post-estimation
+calculation, without the cost of recalculating all the data values and
+re-estimating the model.
+
+An additional benefit is the reduction of numerical error.
+
+In principle, the predicted values from the original model should be
+exactly equal to the predicted values from a model estimated from the
+centered data.
+
+Here we compare two different methods of generating model coefficients
+for recentered data. In the first method, we actually recenter the data,
+then re-estimate the model, then calculate predicted values. In the
+second method, we calculate the model coefficients directly, without
+re-estimating the model. Then we calculate predicted values (using the
+same recentered data as in the first method).
+
+The model is
+\[ y = \beta_0 + \beta_1x_1 +\beta_2x_2 + \beta_3x_3 + \beta_4x_1x_2 + 
+\beta_5x_1x_3 + \beta_6x_2x_3 + \beta_7x_1x_2x_3\]
+
+\hypertarget{simulation}{%
+\subsection{Simulation}\label{simulation}}
+
+\begin{itemize}
+\tightlist
+\item
+  Numerical results: first is recentered data, second is directly
+  recentered coefficients
+\item
+  Graphical results: black is recentered data, red is directly
+  recentered coefficients
+\end{itemize}
+
+The numerical results are the mean norm of the difference between the
+predicted values of the original model versus each of the coefficient
+transformation methods - recalculation and direct transformation.
+
+The graphical results are a kernel density plot of the normed
+differences for each simulation.
+
+All of the differences are tiny. The differences visible in the graph
+are attributable to the QR estimation for the re-estimation method.
+
+\begin{verbatim}
+library(parallel)
+cl <- makeCluster(8)
+
+nvals <- 100L
+clusterExport(cl, c("nvals", "sim.3var.center", "gen_3x", 
+                    "mean.to.matrix", "matching.terms", "vars.in.terms", "kron",
+                    "clean.kron.names", "matrix.build.clean"))
+devnorms <- parSapply(cl, 1:100000, sim.3var.center, nvals)
+rowMeans(devnorms)
+\end{verbatim}
+
+\begin{verbatim}
+[1] 1.39e-14  6.70e-15
+\end{verbatim}
+
+\begin{verbatim}
+kd.plot.overlay(t(devnorms), nvals)
+\end{verbatim}
+
+\includegraphics{errors/output_6_1.png}
 
 
 \end{document}
