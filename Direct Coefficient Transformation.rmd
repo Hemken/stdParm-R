@@ -3,12 +3,12 @@ title: "Direct Coefficient Recentering and Rescaling"
 author: "Doug Hemken"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: 
-    keep_tex: TRUE
+  html_document: 
     highlight: NULL
     toc: TRUE
     toc_depth: 2
-  html_document: 
+  pdf_document: 
+    keep_tex: TRUE
     highlight: NULL
     toc: TRUE
     toc_depth: 2
@@ -546,8 +546,9 @@ cl <- makeCluster(8)
 nvals <- 100L
 clusterExport(cl, c("nvals", "sim.3var.center", "gen_3x", 
                     "mean.to.matrix", "matching.terms", "vars.in.terms", "kron",
-                    "clean.kron.names", "matrix.build.clean"))
+                    "clean.kron.names", "recentering.matrix"))
 devnorms <- parSapply(cl, 1:100000, sim.3var.center, nvals)
 rowMeans(devnorms)
 kd.plot.overlay(t(devnorms), nvals)
+stopCluster(cl)
 ```
