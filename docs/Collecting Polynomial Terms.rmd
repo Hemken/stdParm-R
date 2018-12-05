@@ -2,9 +2,11 @@
 title: "Collecting Polynomial Terms"
 author: "Doug Hemken"
 date: "`r Sys.Date()`"
-output:   
-  html_document: 
-  highlight: NULL
+output:
+  pdf_document:
+    highlight: null
+  html_document:
+    highlight: null
 ---
 
 ```{r setup, echo=FALSE}
@@ -66,4 +68,20 @@ for (i in 1:length(cnames)) {
 C <- rowcombine %*% C
 rownames(C) <- cnames
 C
+```
+
+All of this is packaged in the function `polyterm()`
+```{r polyterm}
+polyterm(mu, b.terms)
+```
+
+A cubic example
+```{r cubic}
+b <- c(1,1,1,1)
+b.terms <- names(b) <- c("(Intercept)", "x", "x:x", "x:x:x")
+
+mu <- 3
+names(mu) <- "x"
+
+polyterm(mu, b.terms)
 ```

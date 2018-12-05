@@ -3,7 +3,9 @@ source("sd.to.matrix.r")
 source("colSds.r")
 source("kron.r")
 source("clean.kron.names.r")
-source("vars.in.terms.r")
+source("terms.vars.degrees.r") # like vars.in.terms with degrees
+source("vars.in.terms.r")      # ?deprecated? for terms.vars.degrees.r
+source("polyterm.r")
 source("matching.terms.r")
 source("match.terms.r")
 source("clean.order.r")
