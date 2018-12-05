@@ -3,9 +3,9 @@ title: "Collecting Polynomial Terms"
 author: "Doug Hemken"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
-    highlight: null
   html_document:
+    highlight: null
+  pdf_document:
     highlight: null
 ---
 
@@ -16,6 +16,7 @@ source("stdParm functions.r", local=TRUE)
 setwd(wd)
 ```
 
+## Recentering
 When using Kronecker products to form polynomial transformations, we want 
 to collect like terms.  That is, if I have a variable $x$ with mean
 $\mu$ in an equation
@@ -85,3 +86,16 @@ names(mu) <- "x"
 
 polyterm(mu, b.terms)
 ```
+
+## Rescaling
+If we are rescaling, no terms need be collected.  Rescaling constants are
+multiplied, the same as if these polynomial terms were interaction terms.
+
+```{r polyscale}
+b <- c(1,1,1,1)
+b.terms <- names(b) <- c("(Intercept)", "x", "x:x", "x:x:x")
+
+sigma <- 3
+names(sigma) <- "x"
+
+polyterm(sigma, b.terms, type="scale")
