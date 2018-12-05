@@ -1,49 +1,54 @@
 ---
 title: "Collecting Polynomial Terms"
 author: "Doug Hemken"
-date: "November 6, 2018"
-output: html_document
+date: "`r Sys.Date()`"
+output:   
+  html_document: 
+  highlight: NULL
 ---
 
-```{r, echo=FALSE}
+```{r setup, echo=FALSE}
 knitr::opts_chunk$set(comment=NA)
-source("stdParm functions.r")
-b <- c(1,1,1)
-names(b) <- c("(Intercept)", "x", "x:x")
+wd <- setwd("../R")
+source("stdParm functions.r", local=TRUE)
+setwd(wd)
 ```
+
 When using Kronecker products to form polynomial transformations, we want 
 to collect like terms.  That is, if I have a variable $x$ with mean
 $\mu$ in an equation
 $$y = \beta_0 + \beta_1 x + \beta_2 x^2$$
 that I would like to recenter, with $x_\delta = x - \mu$ so that
-$$y = \beta_{\delta 0} + \beta_{\delta 1}x_\delta + \beta_{\delta 2} x_\delta^2$$
+$$y = \beta_{0}^\delta  + \beta_{1}^\delta x_\delta + \beta_{2}^\delta  x_\delta^2$$
 The basic recentering matrix can be formed in the same manner as
 for interaction terms.
 
-```{r}
+```{r kronecker}
+b <- c(1,1,1)
+b.terms <- names(b) <- c("(Intercept)", "x", "x:x")
+
 mu <- 3
 names(mu) <- "x"
+
 A <- mean.to.matrix(mu) # recentering x - 3
 C <- kron(A,A)
 C
 ```
 
-However, notice that we have two $x$ terms in the rows and columns.  This
+However, notice that we now have two $x$ terms in the rows and columns.  This
 implies that our original equation is of the form
 $$y = b_0 + b_1 x + b_2 x + b_3 x^2$$
-We can rewrite our original equation in this form, letting $b_2=0$ - the
+We can rewrite our original equation in this form, letting $b_2=0$, recognizing the
 $x$ terms were already collected in our original equation.
 
 Now notice that this coefficient choice zeros out one column of our
 recentering matrix.  We could write this more succinctly by dropping
 the zeroed column and leaving our coefficient vector in it's original form.
 
-```{r}
+```{r columns}
 cnames <- colnames(C)
-# C <- C %*% diag(1,4,4)[,-3]
-keepcols <- match(names(b), colnames(C))
+keepcols <- match(b.terms, cnames)
 C <- C[, keepcols]
-# colnames(C) <- cnames[-3]
 colnames(C) <- cnames[keepcols]
 C
 ```
@@ -51,14 +56,13 @@ C
 We still have two rows for the $x_\delta$ terms. These do ***not*** zero
 out, so we want to collect them in a single term.
 
-```{r}
-cnames <- colnames(C)
+```{r collect}
+cnames <- colnames(C) # reduced columns
 rnames <- rownames(C)
 rowcombine <- matrix(NA, nrow=length(cnames), ncol=length(rnames))
 for (i in 1:length(cnames)) {
   rowcombine[i,] <- rnames %in% cnames[i]
 }
-# rowcombine
 C <- rowcombine %*% C
 rownames(C) <- cnames
 C
