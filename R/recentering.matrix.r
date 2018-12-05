@@ -11,8 +11,10 @@ recentering.matrix <- function(x, terms, type="center") {
     xc <- x[i]
     names(xc) <- varnames[i]
     if (type=="center") { # centering or scaling matrix
+      A <- polyterm(xc, terms) # integrate polynomial terms here
       C <- kron(mean.to.matrix(xc), C)
     } else {
+      # integrate polynomial terms here
       C <- kron(sd.to.matrix(xc), C)
     }                    # centering or scaling matrix
     
