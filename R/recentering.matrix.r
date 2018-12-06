@@ -13,15 +13,13 @@ recentering.matrix <- function(x, terms, type="center") {
     # print(varnames[i])
     if (type=="center") { # centering or scaling matrix
       A <- polyterm(xc, terms) # integrate polynomial terms here
+      C <- kron(A, C)
+    } else if (type=="scale") {
+      A <- polyterm(xc, terms, type="scale") # integrate polynomial terms here
       # print(A)
       # print(C)
-      # print(kron(A, C))
       C <- kron(A, C)
-      # C <- kron(mean.to.matrix(xc), C)
-    } else if (type=="scale") {
-      A <- polyterm(xc, terms, type=="scale") # integrate polynomial terms here
-      # C <- kron(A, C)
-      C <- kron(sd.to.matrix(xc), C)
+      # C <- kron(sd.to.matrix(xc), C)
     }                    # centering or scaling matrix
     
     found <- matching.terms(colnames(C), terms)

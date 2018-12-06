@@ -99,6 +99,15 @@ terms[3] <- "wt:wt" # automate this correction!
 recentering.matrix(mu, terms)
 ```
 
+```{r polys}
+mu    <- sd(mtcars$wt)
+names(mu) <- "wt"
+terms <- names(coef(poly))
+terms[3] <- "wt:wt" # automate this correction!
+
+recentering.matrix(mu, terms, type="scale")
+```
+
 ### Polynomial With Interaction
 ```{r polyint}
 polyint   <- lm(mpg ~ (wt + I(wt^2))*disp, data=mtcars)
@@ -108,4 +117,13 @@ terms[3] <- "wt:wt" # automate this correction!
 terms[6] <- "wt:wt:disp" # automate this correction!
 
 recentering.matrix(mu, terms)
+```
+
+```{r polyints}
+mu    <- colSds(mtcars[,c("wt", "disp")])
+terms <- names(coef(polyint))
+terms[3] <- "wt:wt" # automate this correction!
+terms[6] <- "wt:wt:disp" # automate this correction!
+
+recentering.matrix(mu, terms, type="scale")
 ```

@@ -3,7 +3,6 @@ polyterm <- function(mu, b.terms, type="center"){
             is.character(b.terms))
   
   term.vars <- terms.vars.degrees(b.terms)
-#  print(term.vars)
   polydegree <- max(term.vars[,names(mu)])
   
   if (type=="center") {
@@ -38,7 +37,7 @@ polyterm <- function(mu, b.terms, type="center"){
     C <- rowcombine %*% C
     rownames(C) <- cnames
   } else if (type=="scale") {
-    C <- C[keepcols, ] # keep the same rows as columns
+    C <- C[keepcols[!is.na(keepcols)], ] # keep the same rows as columns
   }
   
   return(C)
