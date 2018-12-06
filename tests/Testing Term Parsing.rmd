@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output:
   html_document:
     highlight: null
+    toc: TRUE
   pdf_document:
     highlight: null
 ---
@@ -16,7 +17,9 @@ source("stdParm functions.r", local=TRUE)
 setwd(wd)
 ```
 
-- ## Additive
+## Additive Terms
+
+### One Variable
 
 ```{r add-one}
 add1   <- lm(mpg ~ wt, data=mtcars)
@@ -27,6 +30,7 @@ terms <- names(coef(add1))
 recentering.matrix(mu, terms)
 ```
 
+### Multiple Variables
 ```{r add-mult}
 addm   <- lm(mpg ~ wt + disp, data=mtcars)
 mu    <- colMeans(mtcars[,c("wt", "disp")])
@@ -35,6 +39,7 @@ terms <- names(coef(addm))
 recentering.matrix(mu, terms)
 ```
 
+### No-intercept Model
 ```{r add-noint, error=TRUE}
 addm   <- lm(mpg ~ 0 + wt + disp, data=mtcars)
 mu    <- colMeans(mtcars[,c("wt", "disp")])
@@ -46,7 +51,7 @@ terms
 recentering.matrix(mu, terms) 
 ```
 
-- ## Interaction
+## Interaction Terms
 
 ```{r int}
 int   <- lm(mpg ~ wt * disp, data=mtcars)
@@ -76,17 +81,31 @@ terms <- names(coef(drpi))
 recentering.matrix(mu, terms)
 ```
 
-- ## Polynomial (not yet integrated)
+## Polynomial Terms
 
-  Still need to bridge the gap between R's formula
+*(not yet fully integrated)*
+
+Still need to bridge the gap between R's formula
   idiosyncracies and the rest of the world!
 
+### One-variable Polynomial
 ```{r poly}
 poly   <- lm(mpg ~ wt + I(wt^2), data=mtcars)
 mu    <- mean(mtcars$wt)
 names(mu) <- "wt"
 terms <- names(coef(poly))
 terms[3] <- "wt:wt" # automate this correction!
+
+recentering.matrix(mu, terms)
+```
+
+### Polynomial With Interaction
+```{r polyint}
+polyint   <- lm(mpg ~ (wt + I(wt^2))*disp, data=mtcars)
+mu    <- colMeans(mtcars[,c("wt", "disp")])
+terms <- names(coef(polyint))
+terms[3] <- "wt:wt" # automate this correction!
+terms[6] <- "wt:wt:disp" # automate this correction!
 
 recentering.matrix(mu, terms)
 ```

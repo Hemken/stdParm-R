@@ -16,14 +16,16 @@ polyterm <- function(mu, b.terms, type="center"){
       C <- kron(A,C)
       }
   }
-#  print(C)
+ # print(C)
   
   # drop/zero repeated column terms
   cnames <- colnames(C)
+  # print(cnames)
   keepcols <- match(b.terms, cnames)
-  C <- C[, keepcols]
+  # print(keepcols)
+  C <- C[, keepcols[!is.na(keepcols)]]
 #  colnames(C) <- cnames[keepcols] # redundant?
-#  print(C)
+ # print(C)
   
   if (type=="center") {
     # collect repeated row terms
