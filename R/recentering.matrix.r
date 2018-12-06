@@ -12,14 +12,18 @@ recentering.matrix <- function(x, terms, type="center") {
     names(xc) <- varnames[i]
     if (type=="center") { # centering or scaling matrix
       A <- polyterm(xc, terms) # integrate polynomial terms here
+      # C <- kron(A, C)
       C <- kron(mean.to.matrix(xc), C)
-    } else {
-      # integrate polynomial terms here
+    } else if (type=="scale") {
+      A <- polyterm(xc, terms, type=="scale") # integrate polynomial terms here
+      # C <- kron(A, C)
       C <- kron(sd.to.matrix(xc), C)
     }                    # centering or scaling matrix
     
     found <- matching.terms(colnames(C), terms)
-    C <- C[found, found]
+    # check for missing lower order terms
+    C <- C[,found]
+    C <- C[rowSums(C)>0, ] 
   }         # over means
   return(C)
 }

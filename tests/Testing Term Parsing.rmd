@@ -1,0 +1,81 @@
+---
+title: "Testing Term Parsing"
+author: "Doug Hemken"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    highlight: null
+  pdf_document:
+    highlight: null
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(comment=NA)
+wd <- setwd("../R")
+source("stdParm functions.r", local=TRUE)
+setwd(wd)
+```
+
+- ## Additive
+
+```{r add-one}
+add1   <- lm(mpg ~ wt, data=mtcars)
+mu    <- mean(mtcars$wt)
+names(mu) <- "wt"
+terms <- names(coef(add1))
+
+recentering.matrix(mu, terms)
+```
+
+```{r add-mult}
+addm   <- lm(mpg ~ wt + disp, data=mtcars)
+mu    <- colMeans(mtcars[,c("wt", "disp")])
+terms <- names(coef(addm))
+
+recentering.matrix(mu, terms)
+```
+
+- ## Interaction
+
+```{r int}
+int   <- lm(mpg ~ wt * disp, data=mtcars)
+mu    <- colMeans(mtcars[,c("wt", "disp")])
+terms <- names(coef(int))
+
+recentering.matrix(mu, terms)
+```
+
+- ## Dropped Lower Order
+
+``` 
+{r drp1}
+drp1   <- lm(mpg ~ wt + wt:disp, data=mtcars)
+mu    <- colMeans(mtcars[,c("wt", "disp")])
+terms <- names(coef(drp1))
+
+recentering.matrix(mu, terms)
+```
+
+```
+{r drpi}
+drpi   <- lm(mpg ~ 0+ wt*disp, data=mtcars)
+mu    <- colMeans(mtcars[,c("wt", "disp")])
+terms <- names(coef(drpi))
+
+recentering.matrix(mu, terms)
+```
+
+- ## Polynomial (not yet integrated)
+
+  Still need to bridge the gap between R's formula
+  idiosyncracies and the rest of the world!
+
+```{r poly}
+poly   <- lm(mpg ~ wt + I(wt^2), data=mtcars)
+mu    <- mean(mtcars$wt)
+names(mu) <- "wt"
+terms <- names(coef(poly))
+terms[3] <- "wt:wt" # automate this correction!
+
+recentering.matrix(mu, terms)
+```
