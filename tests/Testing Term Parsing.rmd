@@ -35,6 +35,17 @@ terms <- names(coef(addm))
 recentering.matrix(mu, terms)
 ```
 
+```{r add-noint, error=TRUE}
+addm   <- lm(mpg ~ 0 + wt + disp, data=mtcars)
+mu    <- colMeans(mtcars[,c("wt", "disp")])
+terms <- names(coef(addm))
+terms
+
+# matching.terms() encounters an EXTRA term!
+#  then vars.in.terms cannot find it
+recentering.matrix(mu, terms) 
+```
+
 - ## Interaction
 
 ```{r int}
