@@ -48,7 +48,8 @@ terms
 
 # matching.terms() encounters an EXTRA term!
 #  then vars.in.terms cannot find it
-recentering.matrix(mu, terms) 
+# clean.kron.names() ?????
+recentering.matrix(mu, terms)
 ```
 
 ## Interaction Terms

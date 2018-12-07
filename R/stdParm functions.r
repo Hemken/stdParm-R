@@ -6,7 +6,7 @@ source("clean.kron.names.r")
 source("terms.vars.degrees.r") # like vars.in.terms with degrees
 source("vars.in.terms.r")      # ?deprecated? for terms.vars.degrees.r
 source("polyterm.r")
-source("matching.terms.r")
+# source("matching.terms.r")     # deprecated
 source("match.terms.r")
 source("clean.order.r")
 source("recentering.matrix.r") # same as matrix.build.clean.r

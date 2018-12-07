@@ -22,7 +22,9 @@ recentering.matrix <- function(x, terms, type="center") {
       # C <- kron(sd.to.matrix(xc), C)
     }                    # centering or scaling matrix
     
-    found <- matching.terms(colnames(C), terms)
+    # found <- matching.terms(colnames(C), terms)
+    matched <- match.terms(colnames(C), terms)
+    found <- matched$found
     # check for missing lower order terms
     C <- C[,found]
     C <- C[rowSums(C)>0, ] 
