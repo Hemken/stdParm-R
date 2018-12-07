@@ -13,5 +13,20 @@ grepl("\\^[[:digit:]]", terms)
 # polynomial terms, using I()
 grepl("^I\\(.*\\^[[:digit:]]\\)$", terms) 
 
-# as three sub-expressions, I(, varname, ^:digit)
-grepl("^(I\\()(.*)(\\^[[:digit:]]\\))$", terms) # polynomial terms, using I()
+# as five sub-expressions, I(, varname, ^:digit)
+polyregex   <- "^(I\\()(.*)(\\^)([[:digit:]])(\\))$"
+prevar <- "^I\\("
+postvar <- "\\^[[:digit:]]\\)$"
+expt <- "(\\))$"
+grepl(polyregex, terms) # polynomial terms, using I()
+
+pterms <- terms[grepl(polyregex, terms)]
+pvars <- sub(prevar, "", pterms)
+pvars <- sub(postvar, "", pvars)
+
+#pterms <- terms[grepl(polyregex, terms)]
+pdegree <- sub("^I\\(.*\\^", "", pterms)
+pdegree <- sub("\\)$", "", pdegree)
+
+sapply(1:length(pterms), function(x) paste(rep(pvars[x], pdegree[x]), collapse=":"))
+
