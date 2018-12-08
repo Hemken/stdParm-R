@@ -19,7 +19,8 @@ kd.plot.overlay(t(devnorms), nvals)
 
 nvals <- 1000L
 clusterExport(cl, c("nvals", "sim.3var.center", "gen_3x", 
-                    "mean.to.matrix", "matching.terms", "vars.in.terms", "kron", "matrix.build.clean"))
+                    "mean.to.matrix", "matching.terms", "vars.in.terms", 
+                    "kron", "clean.kron.names", "recentering.matrix"))
 devnorms <- parSapply(cl, 1:100000, sim.3var.center, nvals)
 rowMeans(devnorms)
 # kd.plot.2overlay(t(devnorms), nvals)
@@ -27,7 +28,8 @@ kd.plot.overlay(t(devnorms), nvals)
 
 nvals <- 10000L
 clusterExport(cl, c("nvals", "sim.3var.center", "gen_3x", 
-                    "mean.to.matrix", "matching.terms", "vars.in.terms", "kron", "matrix.build.clean"))
+                    "mean.to.matrix", "matching.terms", "vars.in.terms", 
+                    "kron", "clean.kron.names", "recentering.matrix"))
 devnorms <- parSapply(cl, 1:100000, sim.3var.center, nvals)
 rowMeans(devnorms)
 # kd.plot.2overlay(t(devnorms), nvals)

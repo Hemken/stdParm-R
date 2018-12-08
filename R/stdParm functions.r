@@ -10,7 +10,7 @@ source("matching.terms.r")
 source("match.terms.r")
 source("clean.order.r")
 source("recentering.matrix.r") # same as matrix.build.clean.r
-source("matrix.build.clean.r") # deprecated
+# source("matrix.build.clean.r") # deprecated
 source("factor.direct.sum.r")
 source("collect.terms.r")
 source("ref.to.gm.r")
