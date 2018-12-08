@@ -5,6 +5,7 @@ source("kron.r")
 source("clean.kron.names.r")
 source("terms.vars.degrees.r") # like vars.in.terms with degrees
 source("vars.in.terms.r")      # ?deprecated? for terms.vars.degrees.r
+source("poly.to.interaction.r")
 source("polyterm.r")
 # source("matching.terms.r")     # deprecated
 source("match.terms.r")
