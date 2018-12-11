@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output:
   html_document:
     highlight: null
+    toc: TRUE
   pdf_document:
     highlight: null
 ---
@@ -16,7 +17,9 @@ source("stdParm functions.r", local=TRUE)
 setwd(wd)
 ```
 
-- ## Additive
+## Additive Terms
+
+### One Variable
 
 ```{r add-one}
 add1   <- lm(mpg ~ wt, data=mtcars)
@@ -27,6 +30,7 @@ terms <- names(coef(add1))
 recentering.matrix(mu, terms)
 ```
 
+### Multiple Variables
 ```{r add-mult}
 addm   <- lm(mpg ~ wt + disp, data=mtcars)
 mu    <- colMeans(mtcars[,c("wt", "disp")])
@@ -35,6 +39,7 @@ terms <- names(coef(addm))
 recentering.matrix(mu, terms)
 ```
 
+### No-intercept Model
 ```{r add-noint, error=TRUE}
 addm   <- lm(mpg ~ 0 + wt + disp, data=mtcars)
 mu    <- colMeans(mtcars[,c("wt", "disp")])
@@ -43,10 +48,11 @@ terms
 
 # matching.terms() encounters an EXTRA term!
 #  then vars.in.terms cannot find it
-recentering.matrix(mu, terms) 
+# clean.kron.names() ?????
+recentering.matrix(mu, terms)
 ```
 
-- ## Interaction
+## Interaction Terms
 
 ```{r int}
 int   <- lm(mpg ~ wt * disp, data=mtcars)
@@ -76,17 +82,48 @@ terms <- names(coef(drpi))
 recentering.matrix(mu, terms)
 ```
 
-- ## Polynomial (not yet integrated)
+## Polynomial Terms
 
-  Still need to bridge the gap between R's formula
-  idiosyncracies and the rest of the world!
+*(?? return terms in original form ??)*
 
+### One-variable Polynomial
+#### Recentering
 ```{r poly}
 poly   <- lm(mpg ~ wt + I(wt^2), data=mtcars)
 mu    <- mean(mtcars$wt)
 names(mu) <- "wt"
 terms <- names(coef(poly))
-terms[3] <- "wt:wt" # automate this correction!
+terms <- poly.fix(terms)
 
 recentering.matrix(mu, terms)
+```
+
+#### Rescaling
+```{r polys}
+mu    <- sd(mtcars$wt)
+names(mu) <- "wt"
+terms <- names(coef(poly))
+terms <- poly.fix(terms)
+
+recentering.matrix(mu, terms, type="scale")
+```
+
+### Polynomial With Interaction
+#### Recentering
+```{r polyint}
+polyint   <- lm(mpg ~ (wt + I(wt^2))*disp, data=mtcars)
+mu    <- colMeans(mtcars[,c("wt", "disp")])
+terms <- names(coef(polyint))
+terms <- poly.fix(terms)
+
+recentering.matrix(mu, terms)
+```
+
+#### Rescaling
+```{r polyints}
+mu    <- colSds(mtcars[,c("wt", "disp")])
+terms <- names(coef(polyint))
+terms <- poly.fix(terms)
+
+recentering.matrix(mu, terms, type="scale")
 ```
