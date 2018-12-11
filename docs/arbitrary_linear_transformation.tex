@@ -1,0 +1,294 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Linear Transformations of Simple Linear Regression},
+            pdfauthor={Doug Hemken},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Linear Transformations of Simple Linear Regression}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Doug Hemken}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2018-12-11}
+
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{general-transformations}{%
+\subsection{General Transformations}\label{general-transformations}}
+
+\begin{quote}
+In a linear regression problem, \(Y=XB\), an overdetermined system to be
+solved for \(B\) by least squares or maximum likelihood, let \(A\) be an
+arbitrary invertible linear transformation of the columns of \(X\), so
+that \(X_\delta=XA\).
+\end{quote}
+
+\begin{quote}
+Then the solution, \(B_\delta\) to the transformed problem,
+\(Y=X_\delta B_\delta\), is \(B_\delta=A^{-1}B\).
+\end{quote}
+
+We can see this by starting with the normal equations for \(B\) and
+\(B_\delta\): \[\begin{aligned}B &=(X^TX)^{-1}X^TY \\
+\\
+ B_\delta &=(X_\delta^TX_\delta)^{-1}X_\delta^TY \\
+ &=((XA)^TXA)^{-1}(XA)^TY \\
+ &=(A^TX^TXA)^{-1}A^TX^TY \\
+ &=(X^TXA)^{-1}(A^T)^{-1}A^TX^TY \\
+ &=(X^TXA)^{-1}X^TY \\
+ &=A^{-1}(X^TX)^{-1}X^TY \\
+ &=A^{-1}B \\
+\end{aligned}\]
+
+This gives us an easy way to calculate \(B_\delta\) from \(B\), and vice
+versa: \[AB_\delta=B\] The linear transformation that we used on the
+columns of \(A\), inverted, gives us the transformed solution.
+
+An example in R illustrates how an arbitrary (invertible) linear
+transformation produces equal fits to the data, i.e.~the same predicted
+values.
+
+\begin{verbatim}
+transf <- matrix(runif(4), ncol=2) # arbitrary linear transformation
+
+m1 <- lm(mpg ~ wt, data=mtcars)
+mpg1 <- predict(m1)
+
+m2 <- lm(mpg ~ 0 + model.matrix(m1) %*% transf, data=mtcars)
+mpg2 <- predict(m2)
+
+plot(mpg1 ~ mpg2)
+\end{verbatim}
+
+\includegraphics{arbitrary_linear_transformation_files/figure-latex/transf-1.pdf}
+
+\begin{verbatim}
+norm(as.matrix(mpg1-mpg2), "F")
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 9.720162e-13
+\end{verbatim}
+
+Looking at the solutions to these two models, we see the same
+transformation and it's inverse allow us to convert the coefficients
+directly.
+
+\begin{verbatim}
+cbind(coef(m1), coef(m2))
+\end{verbatim}
+
+\begin{verbatim}
+##                  [,1]      [,2]
+## (Intercept) 37.285126  180.0250
+## wt          -5.344472 -128.4037
+\end{verbatim}
+
+\begin{verbatim}
+transf %*% coef(m2)
+\end{verbatim}
+
+\begin{verbatim}
+##           [,1]
+## [1,] 37.285126
+## [2,] -5.344472
+\end{verbatim}
+
+\begin{verbatim}
+solve(transf) %*% coef(m1)
+\end{verbatim}
+
+\begin{verbatim}
+##           [,1]
+## [1,]  180.0250
+## [2,] -128.4037
+\end{verbatim}
+
+\hypertarget{recentering}{%
+\subsection{Recentering}\label{recentering}}
+
+We can use this general result to think about how coefficients change
+when the data are recentered.
+
+If our model matrix \(X\) is composed of two columns vectors,
+\(\vec{1}\) and \(\vec{x}\), so that
+\(X=\begin{bmatrix} \vec{1} & \vec{x} \end{bmatrix}\), then we can
+recenter \(\vec{x}\) with an arbitrary constant \(\mu\), as
+\(\vec{x}-\mu\), using the transformation
+\[A=\begin{bmatrix} 1  & -\mu \\ 0 & 1 \end{bmatrix}\] So that,
+borrowing our notation from above, \(X_\delta=XA\). For an \(A\) of this
+form, we have \[A^{-1}=\begin{bmatrix} 1  & \mu \\ 0 & 1 \end{bmatrix}\]
+and the solution for our recentered data is \(B_\delta=A^{-1}B\).
+
+Continuing with the example above, we can recenter \texttt{wt} to the
+sample mean, and verify that this transformation
+
+\begin{verbatim}
+wtcenter <- matrix(c(1,0,-mean(mtcars$wt),1), ncol=2)
+
+centered <- model.matrix(m1) %*% wtcenter
+colMeans(centered)  # should be 1 and 0
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 1.000000e+00 3.469447e-17
+\end{verbatim}
+
+Next we can calculate the transformed coefficients
+
+\begin{verbatim}
+C <- solve(wtcenter)
+C %*% coef(m1)
+\end{verbatim}
+
+\begin{verbatim}
+##           [,1]
+## [1,] 20.090625
+## [2,] -5.344472
+\end{verbatim}
+
+Verify by calculating the solution using the recentered data
+
+\begin{verbatim}
+coef(lm(mpg~0+centered, data=mtcars))
+\end{verbatim}
+
+\begin{verbatim}
+## centered1 centered2 
+## 20.090625 -5.344472
+\end{verbatim}
+
+\hypertarget{rescaling}{%
+\subsection{Rescaling}\label{rescaling}}
+
+We can use the general result again to think about how coefficients
+change when the data are rescaled.
+
+We can rescale \(\vec{x}\) with an arbitrary constant \(\sigma\) as
+\((1/\sigma)\vec{x}\) using the transformation
+\[A=\begin{bmatrix} 1  & 0 \\ 0 & \frac{1}{\sigma} \end{bmatrix}\]
+
+For an \(A\) of this form, we have
+\[A^{-1}=\begin{bmatrix} 1  & 0 \\ 0 & \sigma \end{bmatrix}\]
+
+Again, \(X_\delta=XA\) and \(B_\delta=A^{-1}B\).
+
+In our example, we can consider coverting \texttt{wt} from thousands of
+pounds to kilograms.
+
+\begin{verbatim}
+wt2kg <- matrix(c(1,0,0,453.592), ncol=2)
+
+scaled <- model.matrix(m1) %*% wt2kg
+colMeans(scaled)  # should be 1 and 1459.3
+\end{verbatim}
+
+\begin{verbatim}
+## [1]    1.000 1459.319
+\end{verbatim}
+
+Next we can calculate the transformed coefficients
+
+\begin{verbatim}
+C <- solve(wt2kg)
+C %*% coef(m1)
+\end{verbatim}
+
+\begin{verbatim}
+##             [,1]
+## [1,] 37.28512617
+## [2,] -0.01178255
+\end{verbatim}
+
+Verify by calculating the solution using the recentered data
+
+\begin{verbatim}
+coef(lm(mpg~0+scaled, data=mtcars))
+\end{verbatim}
+
+\begin{verbatim}
+##     scaled1     scaled2 
+## 37.28512617 -0.01178255
+\end{verbatim}
+
+
+\end{document}

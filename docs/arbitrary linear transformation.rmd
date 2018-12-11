@@ -1,0 +1,141 @@
+---
+title: "Linear Transformations of Simple Linear Regression"
+author: "Doug Hemken"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: 
+    keep_tex: TRUE
+    highlight: NULL
+    toc: TRUE
+    toc_depth: 2
+  html_document: 
+    highlight: NULL
+    toc: TRUE
+    toc_depth: 2
+---
+
+## General Transformations
+> In a linear regression problem, $Y=XB$, an overdetermined
+system to be solved for $B$ by least squares or maximum
+likelihood, let $A$ be an arbitrary invertible
+linear transformation of the columns of $X$, so that $X_\delta=XA$.
+
+>Then the solution, $B_\delta$ to the transformed problem,
+$Y=X_\delta B_\delta$, is $B_\delta=A^{-1}B$.
+
+We can see this by starting with the normal equations for
+$B$ and $B_\delta$:
+$$\begin{aligned}B &=(X^TX)^{-1}X^TY \\
+\\
+ B_\delta &=(X_\delta^TX_\delta)^{-1}X_\delta^TY \\
+ &=((XA)^TXA)^{-1}(XA)^TY \\
+ &=(A^TX^TXA)^{-1}A^TX^TY \\
+ &=(X^TXA)^{-1}(A^T)^{-1}A^TX^TY \\
+ &=(X^TXA)^{-1}X^TY \\
+ &=A^{-1}(X^TX)^{-1}X^TY \\
+ &=A^{-1}B \\
+\end{aligned}$$
+
+This gives us an easy way to calculate $B_\delta$ from $B$, and vice
+versa:
+$$AB_\delta=B$$
+The linear transformation that we used on the columns of $A$, inverted, gives
+us the transformed solution.
+
+An example in R illustrates how an arbitrary (invertible) linear transformation
+produces equal fits to the data, i.e. the same predicted values.
+
+```{r transf}
+transf <- matrix(runif(4), ncol=2) # arbitrary linear transformation
+
+m1 <- lm(mpg ~ wt, data=mtcars)
+mpg1 <- predict(m1)
+
+m2 <- lm(mpg ~ 0 + model.matrix(m1) %*% transf, data=mtcars)
+mpg2 <- predict(m2)
+
+plot(mpg1 ~ mpg2)
+
+norm(as.matrix(mpg1-mpg2), "F")
+```
+
+Looking at the solutions to these two models, we see the same
+transformation and it's inverse allow us to convert the coefficients
+directly.
+
+```{r coeftrans}
+cbind(coef(m1), coef(m2))
+transf %*% coef(m2)
+solve(transf) %*% coef(m1)
+```
+
+## Recentering
+We can use this general result to think about how coefficients change
+when the data are recentered.
+
+If our model matrix $X$ is composed of two columns vectors, $\vec{1}$ and
+$\vec{x}$, so that $X=\begin{bmatrix} \vec{1}  & \vec{x} \end{bmatrix}$,
+then we can recenter $\vec{x}$ with an arbitrary constant $\mu$, as 
+$\vec{x}-\mu$, using the
+transformation
+$$A=\begin{bmatrix} 1  & -\mu \\ 0 & 1 \end{bmatrix}$$
+So that, borrowing our notation from above, $X_\delta=XA$.  For an $A$
+of this form, we have
+$$A^{-1}=\begin{bmatrix} 1  & \mu \\ 0 & 1 \end{bmatrix}$$
+and the solution for our recentered data is $B_\delta=A^{-1}B$.
+
+Continuing with the example above, we can recenter `wt` to the sample
+mean, and verify that this transformation
+```{r data-recenter}
+wtcenter <- matrix(c(1,0,-mean(mtcars$wt),1), ncol=2)
+
+centered <- model.matrix(m1) %*% wtcenter
+colMeans(centered)  # should be 1 and 0
+```
+
+Next we can calculate the transformed coefficients
+```{r coef-recenter}
+C <- solve(wtcenter)
+C %*% coef(m1)
+```
+
+Verify by calculating the solution using the recentered data
+```{r coef-verify}
+coef(lm(mpg~0+centered, data=mtcars))
+```
+
+## Rescaling
+We can use the general result again to think about how coefficients change
+when the data are rescaled.
+
+We can rescale $\vec{x}$ with an arbitrary constant $\sigma$ as 
+$(1/\sigma)\vec{x}$ using the
+transformation
+$$A=\begin{bmatrix} 1  & 0 \\ 0 & \frac{1}{\sigma} \end{bmatrix}$$
+
+For an $A$
+of this form, we have
+$$A^{-1}=\begin{bmatrix} 1  & 0 \\ 0 & \sigma \end{bmatrix}$$
+
+Again,  $X_\delta=XA$ and $B_\delta=A^{-1}B$.
+
+In our example, we can consider coverting `wt` from thousands of
+pounds to kilograms.
+
+```{r data-rescale}
+wt2kg <- matrix(c(1,0,0,453.592), ncol=2)
+
+scaled <- model.matrix(m1) %*% wt2kg
+colMeans(scaled)  # should be 1 and 1459.3
+```
+
+Next we can calculate the transformed coefficients
+```{r coef-rescale}
+C <- solve(wt2kg)
+C %*% coef(m1)
+```
+
+Verify by calculating the solution using the recentered data
+```{r coef-verify2}
+coef(lm(mpg~0+scaled, data=mtcars))
+```
