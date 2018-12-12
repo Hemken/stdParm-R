@@ -16,3 +16,5 @@ source("recentering.matrix.r")   # same as matrix.build.clean.r
 source("factor.direct.sum.r")
 source("collect.terms.r")
 source("ref.to.gm.r")
+source("pastex.r")
+source("generate.all.terms.r")
