@@ -28,8 +28,8 @@ x.means <- colMeans(df[,numvars][-1])
 x.sds <- colSds(df[,numvars][-1])
 
 # recentering and rescaling matrices
-C <- matrix.build.clean(x.means, b.terms)
-S <- matrix.build.clean(x.sds, b.terms, type="scale")
+C <- recentering.matrix(x.means, b.terms)
+S <- recentering.matrix(x.sds, b.terms, type="scale")
 
 # combine to standardize
 Z <- S %*% C # the matrix multiplication order is crucial

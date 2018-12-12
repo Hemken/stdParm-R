@@ -10,8 +10,8 @@ b
 x.means <- colMeans(df[,2:4])
 x.sds   <- colSds(df[,2:4])
 
-C <- matrix.build.clean(x.means, b.terms)
-S <- matrix.build.clean(x.sds, b.terms, type="scale")
+C <- recentering.matrix(x.means, b.terms)
+S <- recentering.matrix(x.sds, b.terms, type="scale")
 
 Z <- S %*% C # the order is crucial
 Z 

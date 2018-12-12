@@ -1,4 +1,16 @@
 match.terms <- function (findthese, inthose) {
+  # A function to find proposed terms in a target
+  #    list of terms
+  #
+  # Arguments:
+  #   findthese: proposed terms to find
+  #   inthose:   target terms to search
+  #
+  # Value:
+  #   found:    proposed terms found in target
+  #   found.as: form of found term
+  #   found.at: position found in target
+  stopifnot(is.character(findthese),is.character(inthose))
   needles <- vars.in.terms(findthese)
   haystack <- vars.in.terms(inthose)
   matchcols <- match(colnames(haystack), colnames(needles))

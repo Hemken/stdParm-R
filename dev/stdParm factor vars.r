@@ -18,8 +18,8 @@ x.means <- colMeans(df[,c("x1","x2")])
 x.sds <- colSds(df[,c("x1","x2")])
 
 # recentering and rescaling matrices
-C <- matrix.build.clean(x.means, b.terms)
-S <- matrix.build.clean(x.sds, b.terms, type="scale")
+C <- recentering.matrix(x.means, b.terms)
+S <- recentering.matrix(x.sds, b.terms, type="scale")
 
 # combine to standardize
 Z <- S %*% C # the order is crucial
