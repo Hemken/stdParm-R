@@ -18,5 +18,6 @@ terms.vars.degrees <- function(terms){
       }
     }
   }
+  attr(term.vars, "order") <- sapply(lapply(splitterms, unique), length)
   return(term.vars)
 }
