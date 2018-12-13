@@ -11,8 +11,8 @@ match.terms <- function (findthese, inthose) {
   #   found.as: form of found term
   #   found.at: position found in target
   stopifnot(is.character(findthese),is.character(inthose))
-  needles <- vars.in.terms(findthese)
-  haystack <- vars.in.terms(inthose)
+  needles <- terms.vars.degrees(findthese)
+  haystack <- terms.vars.degrees(inthose)
   matchcols <- match(colnames(haystack), colnames(needles))
   extra <- as.matrix(haystack[,is.na(matchcols)])
   haystack <- haystack[, !is.na(matchcols)]
