@@ -3,22 +3,35 @@ source("stdParm functions.r")
 setwd("..")
 
 tvd <- terms.vars.degrees(c("w:z", "x:y:z"))
+generate.all.terms(tvd) # 10 terms
 
-generate.all.terms(tvd)
+# Additive
+m1 <- lm(mpg ~ wt + disp, data=mtcars)
+b.terms <- names(coef(m1))
+b.terms
+tvd <- terms.vars.degrees(b.terms)
+generate.all.terms(tvd) # 3 terms
 
-
-m0 <- lm(mpg ~ wt + wt:disp, data=mtcars)
+# No (Intercept)
+m0 <- lm(mpg ~ wt + 0, data=mtcars)
 b.terms <- names(coef(m0))
 b.terms
 tvd <- terms.vars.degrees(b.terms)
+generate.all.terms(tvd) # 2 terms
 
-generate.all.terms(tvd)
+# Nested term
+mnest <- lm(mpg ~ wt + wt:disp, data=mtcars)
+b.terms <- names(coef(mnest))
+b.terms
+tvd <- terms.vars.degrees(b.terms)
+generate.all.terms(tvd) # 4 terms
 
+# Polynomial - nested in polynomial, missing 1st order
 mpoly <- lm(mpg ~ wt + I(wt^2) + (wt + I(wt^2)):disp, data=mtcars)
 p.terms <- names(coef(mpoly))
 p.terms <- poly.fix(p.terms)
 p.terms
-
 tvd <- terms.vars.degrees(p.terms)
-generate.all.terms(tvd)  # does not generate polynomial terms
+# does not generate polynomial terms within interactions
+generate.all.terms(tvd)  # 6 terms
 p.terms
