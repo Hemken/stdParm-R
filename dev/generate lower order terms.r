@@ -2,6 +2,7 @@ setwd("R")
 source("stdParm functions.r")
 setwd("..")
 
+# Disjoint first order terms
 tvd <- terms.vars.degrees(c("w:z", "x:y:z"))
 generate.all.terms(tvd) # 10 terms
 
@@ -26,12 +27,13 @@ b.terms
 tvd <- terms.vars.degrees(b.terms)
 generate.all.terms(tvd) # 4 terms
 
-# Polynomial - nested in polynomial, missing 1st order
+# Polynomial - nested in polynomial
 mpoly <- lm(mpg ~ wt + I(wt^2) + (wt + I(wt^2)):disp, data=mtcars)
 p.terms <- names(coef(mpoly))
 p.terms <- poly.fix(p.terms)
 p.terms
 tvd <- terms.vars.degrees(p.terms)
-# does not generate polynomial terms within interactions
 generate.all.terms(tvd)  # 6 terms
-p.terms
+
+tvd <- terms.vars.degrees(c("w:z:z", "x:y:y:y:z"))
+generate.all.terms(tvd) # 10 terms
