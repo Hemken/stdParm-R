@@ -20,12 +20,10 @@ polyterm <- function(mu, b.terms, type="center"){
   # drop/zero repeated column terms
   cnames <- colnames(C)
   # print(cnames)
-  keepcols <- match(b.terms, cnames)
+  keepcols <- unique(c(1,match(b.terms, cnames))) # always retain 1st column
   # print(keepcols)
   C <- C[, keepcols[!is.na(keepcols)]]
-#  colnames(C) <- cnames[keepcols] # redundant?
- # print(C)
-  
+
   if (type=="center") {
     # collect repeated row terms
     cnames <- colnames(C) # reduced columns

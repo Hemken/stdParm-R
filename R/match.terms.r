@@ -14,7 +14,9 @@ match.terms <- function (findthese, inthose) {
   needles <- terms.vars.degrees(findthese)
   haystack <- terms.vars.degrees(inthose)
   matchcols <- match(colnames(haystack), colnames(needles))
+  print(matchcols)
   extra <- as.matrix(haystack[,is.na(matchcols)])
+  print(extra)
   haystack <- haystack[, !is.na(matchcols)]
   haystack <- haystack[, colnames(needles)]
   found <- NULL

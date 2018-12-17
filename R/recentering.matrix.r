@@ -11,11 +11,11 @@ recentering.matrix <- function(x, terms, type="center") {
     xc <- x[i]
     # print(varnames[i])
     names(xc) <- varnames[i]
-    print(xc)
+    # print(xc)
     if (type=="center") { # centering or scaling matrix
       print(polyterm(xc, terms))
       A <- polyterm(xc, terms) # integrate polynomial terms here
-      print(A)
+      # print(A)
       # print(C)
       C <- kron(A, C)
     } else if (type=="scale") {
@@ -27,6 +27,8 @@ recentering.matrix <- function(x, terms, type="center") {
     }                    # centering or scaling matrix
     
     # found <- matching.terms(colnames(C), terms)
+    print(colnames(C))
+    print(terms)
     matched <- match.terms(colnames(C), terms)
     found <- matched$found
     # check for missing lower order terms
