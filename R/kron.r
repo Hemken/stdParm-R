@@ -3,7 +3,7 @@ kron <- function(A,B) {
   # assumes A and B already have useful row and column names
   #stopifnot(is.matrix(A) & is.matrix(B))
   C <- kronecker(A, B, make.dimnames=TRUE)
-  
+  # print(colnames(C))
   colnames(C) <- clean.kron.names(colnames(C))
   rownames(C) <- clean.kron.names(rownames(C))
 

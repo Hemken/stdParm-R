@@ -1,5 +1,6 @@
 generate.all.terms <- function (tvd) {
-  # tvd - terms.vars.degrees return object
+  # tvd - terms.vars.degrees return object/table
+  # returns a (completed) vector of terms
   
   all.terms <- "(Intercept)"
   # print(all.terms)

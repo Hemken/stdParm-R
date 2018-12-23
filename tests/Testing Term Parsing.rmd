@@ -46,9 +46,6 @@ mu    <- colMeans(mtcars[,c("wt", "disp")])
 terms <- names(coef(addm))
 terms
 
-# matching.terms() encounters an EXTRA term!
-#  then vars.in.terms cannot find it
-# clean.kron.names() ?????
 recentering.matrix(mu, terms)
 ```
 
@@ -62,10 +59,9 @@ terms <- names(coef(int))
 recentering.matrix(mu, terms)
 ```
 
-- ## Dropped Lower Order
+## Dropped Lower Order (Nested)
 
-``` 
-{r drp1}
+```{r drp1}
 drp1   <- lm(mpg ~ wt + wt:disp, data=mtcars)
 mu    <- colMeans(mtcars[,c("wt", "disp")])
 terms <- names(coef(drp1))
@@ -73,9 +69,8 @@ terms <- names(coef(drp1))
 recentering.matrix(mu, terms)
 ```
 
-```
-{r drpi}
-drpi   <- lm(mpg ~ 0+ wt*disp, data=mtcars)
+```{r drpi}
+drpi   <- lm(mpg ~ 0 + wt*disp, data=mtcars)
 mu    <- colMeans(mtcars[,c("wt", "disp")])
 terms <- names(coef(drpi))
 
