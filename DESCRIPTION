@@ -5,3 +5,4 @@ Title: Coefficient Recentering and Rescaling
 Description: Direct calculation of recentered and rescaled coefficients
 Author: Doug Hemken <dehemken@wisc.edu>
 Maintainer: Doug Hemken <dehemken@wisc.edu>
+RoxygenNote: 6.1.1

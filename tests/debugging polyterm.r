@@ -1,6 +1,4 @@
-wd <- setwd("./R")
-source("stdParm functions.r", local=TRUE)
-setwd(wd)
+library(stdParm)
 
 addm   <- lm(mpg ~ 0 + wt + disp, data=mtcars)
 mu    <- colMeans(mtcars[,c("wt", "disp")])

@@ -1,3 +1,26 @@
+#' recentering.matrix
+#' 
+#' Recentering and rescaling matrix generation
+#' 
+#' @param x named vector of recentering or rescaling constants, one
+#'     per variable in \code{terms}
+#' @param terms character vector of terms (coefficients) in a model
+#' @param type the type of matrix to return, either \code{center} 
+#'     (the default) or \code{scale}
+#'     
+#' @return a recentering or rescaling matrix
+#' 
+#' @example 
+#'     fit <- lm(mpg ~ wt*disp, data=mtcars)
+#'     mu    <- colMeans(mtcars[,c("wt", "disp")])
+#'     sigma <- colSds(mtcars[,c("wt", "disp")])
+#'     terms <- names(coef(fit))
+#'     
+#'     recentering.matrix(mu, terms)
+#'     recentering.matrix(mu, terms, type="scale")
+#'     
+#' @export
+#' 
 recentering.matrix <- function(x, terms, type="center") {
   stopifnot(is.numeric(x), is.character(terms),
             type %in% c("center", "scale"))
@@ -10,36 +33,18 @@ recentering.matrix <- function(x, terms, type="center") {
   
   for (i in 1:nx){ # over means
     xc <- x[i]
-    # print(paste("varname", i, varnames[i]))
     names(xc) <- varnames[i]
-    # print(xc)
     if (type=="center") { # centering or scaling matrix
-      # print(polyterm(xc, terms))
-      A <- polyterm(xc, complete.terms) # integrate polynomial terms here
-      # print(A)
-      # print(C)
+      A <- polyterm(xc, complete.terms)
       C <- kron(A, C)
     } else if (type=="scale") {
-      A <- polyterm(xc, complete.terms, type="scale") # integrate polynomial terms here
-      # print(A)
-      # print(C)
+      A <- polyterm(xc, complete.terms, type="scale")
       C <- kron(A, C)
-      # C <- kron(sd.to.matrix(xc), C)
     }                    # centering or scaling matrix
     
-    # found <- matching.terms(colnames(C), terms)
-    # message(varnames[i], " colnames: ", colnames(C))
-    # message("searching: ", terms)
-    # matched <- match.terms(colnames(C), terms)
     matched <- match.terms(colnames(C), complete.terms)
-    # message("match.terms return")
-    # print(matched)
-    found <- unique(c("(Intercept)", matched$found)) # must include (Intercept)
-    # check for missing lower order terms
-    # print(C)
+    found <- matched$found
     C <- C[,found]
-    # print(C)
-    # message(str(C))
     C <- C[rowSums(C)>0, ] 
   }         # over means
   C <- C[,terms]

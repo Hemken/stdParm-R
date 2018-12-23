@@ -12,9 +12,7 @@ output:
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(comment=NA)
-wd <- setwd("../R")
-source("stdParm functions.r", local=TRUE)
-setwd(wd)
+library(stdParm)
 ```
 
 ## Additive Terms
@@ -121,4 +119,21 @@ terms <- names(coef(polyint))
 terms <- poly.fix(terms)
 
 recentering.matrix(mu, terms, type="scale")
+```
+
+### Dropped Polynomial Term
+````{r droppoly}
+polymod   <- lm(mpg ~ I(wt^2), data=mtcars)
+mu    <- mean(mtcars$wt)
+names(mu) <- "wt"
+sigma <- sd(mtcars$wt)
+names(sigma) <- "wt"
+terms <- poly.fix(names(coef(polymod)))
+terms
+
+recentering.matrix(mu, terms)
+recentering.matrix(sigma, terms, type="scale") # rescale without recentering
+
+C <-recentering.matrix(mu, terms)
+recentering.matrix(sigma, row.names(C), type="scale") # rescale after recentering
 ```

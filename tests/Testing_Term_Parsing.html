@@ -291,6 +291,7 @@ $(document).ready(function () {
 <li><a href="#polynomial-terms">Polynomial Terms</a><ul>
 <li><a href="#one-variable-polynomial">One-variable Polynomial</a></li>
 <li><a href="#polynomial-with-interaction">Polynomial With Interaction</a></li>
+<li><a href="#dropped-polynomial-term">Dropped Polynomial Term</a></li>
 </ul></li>
 </ul>
 </div>
@@ -437,6 +438,32 @@ disp                  0 0.0000000 0.000000 123.9387   0.0000     0.0000
 wt:disp               0 0.0000000 0.000000   0.0000 121.2687     0.0000
 wt:wt:disp            0 0.0000000 0.000000   0.0000   0.0000   118.6563</code></pre>
 </div>
+</div>
+<div id="dropped-polynomial-term" class="section level3">
+<h3>Dropped Polynomial Term</h3>
+<pre class="r"><code>polymod   &lt;- lm(mpg ~ I(wt^2), data=mtcars)
+mu    &lt;- mean(mtcars$wt)
+names(mu) &lt;- &quot;wt&quot;
+sigma &lt;- sd(mtcars$wt)
+names(sigma) &lt;- &quot;wt&quot;
+terms &lt;- poly.fix(names(coef(polymod)))
+terms</code></pre>
+<pre><code>[1] &quot;(Intercept)&quot; &quot;wt:wt&quot;      </code></pre>
+<pre class="r"><code>recentering.matrix(mu, terms)</code></pre>
+<pre><code>            (Intercept)   wt:wt
+(Intercept)           1 10.3507
+wt                    0  6.4345
+wt:wt                 0  1.0000</code></pre>
+<pre class="r"><code>recentering.matrix(sigma, terms, type=&quot;scale&quot;) # rescale without recentering</code></pre>
+<pre><code>            (Intercept)    wt:wt
+(Intercept)           1 0.000000
+wt:wt                 0 0.957379</code></pre>
+<pre class="r"><code>C &lt;-recentering.matrix(mu, terms)
+recentering.matrix(sigma, row.names(C), type=&quot;scale&quot;) # rescale after recentering</code></pre>
+<pre><code>            (Intercept)        wt    wt:wt
+(Intercept)           1 0.0000000 0.000000
+wt                    0 0.9784574 0.000000
+wt:wt                 0 0.0000000 0.957379</code></pre>
 </div>
 </div>
 
