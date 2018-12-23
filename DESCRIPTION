@@ -1,0 +1,7 @@
+Package: stdParm
+Version: 0.1
+Date: 2018-12-23
+Title: Coefficient Recentering and Rescaling
+Description: Direct calculation of recentered and rescaled coefficients
+Author: Doug Hemken <dehemken@wisc.edu>
+Maintainer: Doug Hemken <dehemken@wisc.edu>
