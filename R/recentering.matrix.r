@@ -26,6 +26,7 @@ recentering.matrix <- function(x, terms, type="center") {
             type %in% c("center", "scale"))
   nx <- length(x)
   varnames <- names(x)
+  if (is.null(varnames)) stop("recentering/rescaling constants must have names")
   complete.terms <- generate.all.terms(terms.vars.degrees(terms))
   
   C <- matrix(1, ncol=1)
