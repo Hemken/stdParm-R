@@ -21,3 +21,13 @@ a recentering or rescaling matrix
 \description{
 Recentering and rescaling matrix generation
 }
+\examples{
+    fit <- lm(mpg ~ wt*disp, data=mtcars)
+    mu    <- colMeans(mtcars[,c("wt", "disp")])
+    sigma <- colSds(mtcars[,c("wt", "disp")])
+    terms <- names(coef(fit))
+    
+    recentering.matrix(mu, terms)
+    recentering.matrix(mu, terms, type="scale")
+    
+}

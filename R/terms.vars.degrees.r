@@ -1,3 +1,25 @@
+#' terms.vars.degrees
+#' 
+#' Generate a terms-variables-degrees table/matrix
+#' 
+#' @param terms a character vector of model terms/coefficients
+#' 
+#' @return a matrix with the terms as \code{rownames},
+#'     the constituent variables as \code{colnames}, and
+#'     the polynomial degree of each variable in each term
+#'     as the table cell. The matrix also has an \code{order}
+#'     attribute, recording the interaction order of each
+#'     term.
+#'     
+#' @examples 
+#'     fit <- lm(mpg ~ wt*disp, data=mtcars)
+#'     terms <- names(coef(fit))
+#'     terms.vars.degrees(terms)
+#'     
+#' @seealso 
+#'     \code{terms.object}, \code{terms}, \code{formula}
+#'     
+
 terms.vars.degrees <- function(terms){
   # terms is a vector of coefficient names
   # returns a matrix of terms and variables

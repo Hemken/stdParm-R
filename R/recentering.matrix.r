@@ -10,7 +10,7 @@
 #'     
 #' @return a recentering or rescaling matrix
 #' 
-#' @example 
+#' @examples 
 #'     fit <- lm(mpg ~ wt*disp, data=mtcars)
 #'     mu    <- colMeans(mtcars[,c("wt", "disp")])
 #'     sigma <- colSds(mtcars[,c("wt", "disp")])

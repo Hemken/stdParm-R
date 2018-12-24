@@ -7,7 +7,7 @@
 #' 
 #' @return a character vector of model terms
 #' 
-#' @example
+#' @examples
 #'     fit <- lm(mpg ~ 0 + wt*disp, data=mtcars)
 #'     generate.all.terms(terms.vars.degrees(names(coef(fit))))
 #'

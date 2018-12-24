@@ -16,3 +16,8 @@ a character vector of model terms
 Generate a complete list of terms where some lower order terms
     may have been dropped
 }
+\examples{
+    fit <- lm(mpg ~ 0 + wt*disp, data=mtcars)
+    generate.all.terms(terms.vars.degrees(names(coef(fit))))
+
+}
