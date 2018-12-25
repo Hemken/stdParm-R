@@ -1,3 +1,15 @@
+#' polyterm
+#' 
+#' @description Generate recentering and rescaling matrices
+#'     for polynomial terms
+#'     
+#' @param mu a vector of recentering or rescaling constants
+#' @param b.terms a character vector of terms
+#' @param type either \code{center} or \code{scale}
+#' 
+#' @return a recentering or rescaling matrix
+#' 
+
 polyterm <- function(mu, b.terms, type="center"){
   stopifnot(is.numeric(mu), length(mu)==1, length(names(mu))==1,
             is.character(b.terms))

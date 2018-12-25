@@ -1,3 +1,16 @@
+#' collect.terms
+#' 
+#' @description Eliminate redundant terms in the column space 
+#'     and collect redundant terms in the row space
+#'     
+#' @param A a matrix, with rownames and colnames
+#' 
+#' @return the matrix with redundant columns dropped and redundant
+#'     rows summed
+#'     
+#' @examples 
+#' 
+
 collect.terms <- function (A) {
   stopifnot(is.matrix(A))
   cnames <- colnames(A)

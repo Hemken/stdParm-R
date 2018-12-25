@@ -1,12 +1,20 @@
+#' poly.to.interaction
+#' 
+#' @description Converts polynomial terms like I(x^2)
+#'     to the interaction form x:x
+#'     
+#' @param terms a character vector of simple terms
+#'     (no intercation terms)
+#' 
+#' @return a character vector of converted terms
+#' 
+#' @seealso \code{poly.fix}
+#' 
+#' @examples 
+#'     poly.to.interaction(c("Intercept", "x", "I(x^2)"))
+#'     
+
 poly.to.interaction <- function (terms) {
-  # For simple terms.  For compound terms use poly.fix()
-  # Converts polynomial terms like I(x^2), written
-  #   with the I() inhibit function, to the
-  #   interaction form, x:x
-  
-  # Returns a character vector of the converted terms
-  
-  # 
   stopifnot(is.character(terms))
 
   # some regex patterns
