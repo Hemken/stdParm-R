@@ -11,9 +11,7 @@ output:
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(comment=NA)
-wd <- setwd("../R")
-source("stdParm functions.r", local=TRUE)
-setwd(wd)
+library(stdParm)
 ```
 
 ## Recentering
